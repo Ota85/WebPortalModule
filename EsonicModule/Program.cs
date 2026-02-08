@@ -8,16 +8,22 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 // Add HttpClient for API calls
+var apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"] ?? "http://localhost:5107";
 builder.Services.AddHttpClient<DataService>(client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5107");
+    client.BaseAddress = new Uri(apiBaseUrl);
 })
 .ConfigurePrimaryHttpMessageHandler(() =>
 {
-    return new HttpClientHandler
+    var handler = new HttpClientHandler();
+    
+    // Only disable certificate validation in development
+    if (builder.Environment.IsDevelopment())
     {
-        ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-    };
+        handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+    }
+    
+    return handler;
 });
 
 var app = builder.Build();
