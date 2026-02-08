@@ -7,7 +7,7 @@ Tento dokument poskytuje stručný přehled pro nasazení aplikací EsonicModule
 ### 1. Instalace požadavků na server
 - Windows Server 2016 nebo novější
 - IIS 10 nebo novější
-- **.NET 10.0 Hosting Bundle** - Stáhnout z: https://dotnet.microsoft.com/download/dotnet/10.0
+- **.NET 9.0 Hosting Bundle** - Stáhnout z: https://dotnet.microsoft.com/download/dotnet/9.0
 
 ### 2. Restart IIS po instalaci Hosting Bundle
 ```powershell

@@ -125,7 +125,7 @@ WebPortalModule/
 
 ## Technology Stack
 
-- .NET 10.0
+- .NET 9.0
 - ASP.NET Core Blazor Server
 - ASP.NET Core Web API
 - Bootstrap 5

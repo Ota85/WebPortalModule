@@ -5,8 +5,8 @@ Use this checklist to ensure all steps are completed for a successful IIS deploy
 
 ## Pre-Deployment / Před nasazením
 
-- [ ] .NET 10.0 Hosting Bundle installed on IIS server
-      *.NET 10.0 Hosting Bundle nainstalován na IIS serveru*
+- [ ] .NET 9.0 Hosting Bundle installed on IIS server
+      *.NET 9.0 Hosting Bundle nainstalován na IIS serveru*
 - [ ] IIS features enabled (see IIS_DEPLOYMENT.md)
       *IIS funkce povoleny (viz IIS_DEPLOYMENT.md)*
 - [ ] SSL certificate obtained and ready

@@ -7,10 +7,10 @@ This document provides step-by-step instructions for deploying EsonicModule (Bla
 ### Server Requirements
 - Windows Server 2016 or later (or Windows 10/11 for development)
 - IIS 10 or later
-- .NET 10.0 Runtime (or .NET 10.0 Hosting Bundle)
+- .NET 9.0 Runtime (or .NET 9.0 Hosting Bundle)
 
 ### Install .NET Hosting Bundle
-1. Download the .NET 10.0 Hosting Bundle from: https://dotnet.microsoft.com/download/dotnet/10.0
+1. Download the .NET 9.0 Hosting Bundle from: https://dotnet.microsoft.com/download/dotnet/9.0
 2. Run the installer
 3. Restart IIS after installation:
    ```powershell
