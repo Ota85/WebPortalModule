@@ -10,7 +10,14 @@ builder.Services.AddRazorComponents()
 // Add HttpClient for API calls
 builder.Services.AddHttpClient<DataService>(client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7242");
+    client.BaseAddress = new Uri("http://localhost:5107");
+})
+.ConfigurePrimaryHttpMessageHandler(() =>
+{
+    return new HttpClientHandler
+    {
+        ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+    };
 });
 
 var app = builder.Build();
