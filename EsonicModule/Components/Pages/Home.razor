@@ -1,4 +1,7 @@
 @page "/"
+@using EsonicModule.Models
+@using EsonicModule.Services
+@inject IBarcodeService BarcodeService
 @rendermode InteractiveServer
 
 <PageTitle>Home</PageTitle>
@@ -18,19 +21,15 @@ else
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Name</th>
-                    <th>Description</th>
-                    <th>Created Date</th>
+                    <th>ZPL Code</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in dataItems)
+                @foreach (var barcode in barcodes)
                 {
                     <tr>
-                        <td>@item.Id</td>
-                        <td>@item.Name</td>
-                        <td>@item.Description</td>
-                        <td>@item.CreatedDate.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>@barcode.ID</td>
+                        <td>@barcode.ZPLCode</td>
                     </tr>
                 }
             </tbody>
@@ -39,32 +38,14 @@ else
 }
 
 @code {
-    private List<DataItem> dataItems = new();
+    private List<Barcode> barcodes = new();
     private bool isLoading = true;
 
     protected override async Task OnInitializedAsync()
     {
-        // Simulate loading delay
-        await Task.Delay(500);
-        
-        // Generate dummy data
-        var summaries = new[] { "Sample A", "Sample B", "Sample C", "Sample D", "Sample E" };
-        dataItems = Enumerable.Range(1, 10).Select(index => new DataItem
-        {
-            Id = index,
-            Name = $"Item {index}",
-            Description = summaries[Random.Shared.Next(summaries.Length)],
-            CreatedDate = DateTime.Now.AddDays(-index)
-        }).ToList();
+        // Load barcodes from database
+        barcodes = await BarcodeService.GetAllBarcodesAsync();
         
         isLoading = false;
-    }
-
-    private class DataItem
-    {
-        public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public DateTime CreatedDate { get; set; }
     }
 }
