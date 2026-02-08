@@ -45,10 +45,8 @@ public class BarcodeService : IBarcodeService
             {
                 return false;
             }
-            else
-            {
-                throw;
-            }
+            
+            throw;
         }
     }
 

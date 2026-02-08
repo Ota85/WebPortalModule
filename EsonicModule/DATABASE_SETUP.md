@@ -1,5 +1,7 @@
 # EsonicModule - Database Configuration
 
+> **⚠️ SECURITY WARNING**: This setup contains hardcoded credentials as specified in the requirements. These credentials are visible in source control. This is NOT recommended for production use. See the Security Note section below for recommended practices.
+
 ## Database Connection
 
 The EsonicModule is configured to connect to a MS SQL Server database with the following details:
