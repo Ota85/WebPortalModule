@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="EsonicApi/EsonicApi.csproj" />
+  <Project Path="EsonicModule/EsonicModule.csproj" />
+</Solution>

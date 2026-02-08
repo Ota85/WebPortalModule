@@ -1,0 +1,58 @@
+@page "/datagrid"
+@rendermode InteractiveServer
+@using EsonicModule.Models
+@using EsonicModule.Services
+@inject DataService DataService
+
+<PageTitle>Data Grid</PageTitle>
+
+<h1>Data Grid</h1>
+
+<p>Data from EsonicApi</p>
+
+@if (isLoading)
+{
+    <p><em>Loading...</em></p>
+}
+else if (dataItems == null || !dataItems.Any())
+{
+    <p><em>No data available.</em></p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Created Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in dataItems)
+                {
+                    <tr>
+                        <td>@item.Id</td>
+                        <td>@item.Name</td>
+                        <td>@item.Description</td>
+                        <td>@item.CreatedDate.ToString("yyyy-MM-dd HH:mm")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private List<DataItem>? dataItems;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+        dataItems = await DataService.GetDataAsync();
+        isLoading = false;
+    }
+}
