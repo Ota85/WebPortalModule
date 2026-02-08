@@ -7,11 +7,7 @@ namespace EsonicModule.Models;
 public class Barcode
 {
     [Key]
-    public int Id { get; set; }
+    public int ID { get; set; }
 
-    public string? Code { get; set; }
-
-    public DateTime? CreatedDate { get; set; }
-
-    public string? Description { get; set; }
+    public string? ZPLCode { get; set; }
 }

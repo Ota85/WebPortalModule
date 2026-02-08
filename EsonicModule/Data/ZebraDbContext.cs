@@ -20,7 +20,7 @@ public class ZebraDbContext : DbContext
         modelBuilder.Entity<Barcode>(entity =>
         {
             entity.ToTable("Barcodes");
-            entity.HasKey(e => e.Id);
+            entity.HasKey(e => e.ID);
         });
     }
 }

@@ -41,7 +41,7 @@ public class BarcodeService : IBarcodeService
         }
         catch (DbUpdateConcurrencyException)
         {
-            if (!await BarcodeExistsAsync(barcode.Id))
+            if (!await BarcodeExistsAsync(barcode.ID))
             {
                 return false;
             }
@@ -65,6 +65,6 @@ public class BarcodeService : IBarcodeService
 
     private async Task<bool> BarcodeExistsAsync(int id)
     {
-        return await _context.Barcodes.AnyAsync(e => e.Id == id);
+        return await _context.Barcodes.AnyAsync(e => e.ID == id);
     }
 }
