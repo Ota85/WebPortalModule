@@ -68,6 +68,37 @@ dotnet run
 dotnet build
 ```
 
+## Deployment
+
+### IIS Deployment
+
+For deploying to IIS (Internet Information Services), see the comprehensive guide:
+**[IIS_DEPLOYMENT.md](IIS_DEPLOYMENT.md)**
+
+#### Quick Publish
+
+Use the provided PowerShell script to publish both applications:
+
+```powershell
+.\publish.ps1
+```
+
+Or publish manually:
+
+```bash
+# Publish API
+cd EsonicApi
+dotnet publish -c Release -o C:\inetpub\wwwroot\EsonicApi
+
+# Publish Blazor App
+cd EsonicModule
+dotnet publish -c Release -o C:\inetpub\wwwroot\EsonicModule
+```
+
+**Important:** Before deploying to production, update the configuration files:
+- `EsonicApi/appsettings.Production.json` - Set allowed CORS origins
+- `EsonicModule/appsettings.Production.json` - Set API base URL
+
 ## Project Structure
 
 ```

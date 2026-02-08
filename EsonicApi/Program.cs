@@ -6,12 +6,15 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 // Add CORS
+var allowedOrigins = builder.Configuration.GetSection("CorsSettings:AllowedOrigins").Get<string[]>()
+    ?? new[] { "https://localhost:7068", "http://localhost:5148" };
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowBlazorApp",
         policy =>
         {
-            policy.WithOrigins("https://localhost:7068", "http://localhost:5148")
+            policy.WithOrigins(allowedOrigins)
                   .AllowAnyHeader()
                   .AllowAnyMethod();
         });
