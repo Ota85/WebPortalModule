@@ -1,9 +1,16 @@
 using EsonicModule.Components;
 using EsonicModule.Services;
+using EsonicModule.Data;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add DbContext for SQL Server
+builder.Services.AddDbContext<ZebraDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ZebraDatabase")));
+
 // Add services to the container.
+builder.Services.AddScoped<IBarcodeService, BarcodeService>();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
