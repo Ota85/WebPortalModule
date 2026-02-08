@@ -1,16 +1,15 @@
 using EsonicModule.Models;
-using System.Net.Http.Json;
 
 namespace EsonicModule.Services;
 
 public class DataService
 {
-    private readonly HttpClient _httpClient;
+    private readonly IDataRepository _dataRepository;
     private readonly ILogger<DataService> _logger;
 
-    public DataService(HttpClient httpClient, ILogger<DataService> logger)
+    public DataService(IDataRepository dataRepository, ILogger<DataService> logger)
     {
-        _httpClient = httpClient;
+        _dataRepository = dataRepository;
         _logger = logger;
     }
 
@@ -18,12 +17,11 @@ public class DataService
     {
         try
         {
-            var data = await _httpClient.GetFromJsonAsync<List<DataItem>>("api/Data");
-            return data ?? new List<DataItem>();
+            return await Task.FromResult(_dataRepository.GetAllData());
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error fetching data from API");
+            _logger.LogError(ex, "Error fetching data");
             return new List<DataItem>();
         }
     }
@@ -32,12 +30,51 @@ public class DataService
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<DataItem>($"api/Data/{id}");
+            return await Task.FromResult(_dataRepository.GetDataById(id));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error fetching data item {Id} from API", id);
+            _logger.LogError(ex, "Error fetching data item {Id}", id);
             return null;
+        }
+    }
+
+    public async Task<DataItem?> CreateDataAsync(DataItem item)
+    {
+        try
+        {
+            return await Task.FromResult(_dataRepository.CreateData(item));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating data item");
+            return null;
+        }
+    }
+
+    public async Task<DataItem?> UpdateDataAsync(DataItem item)
+    {
+        try
+        {
+            return await Task.FromResult(_dataRepository.UpdateData(item));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating data item {Id}", item.Id);
+            return null;
+        }
+    }
+
+    public async Task<bool> DeleteDataAsync(int id)
+    {
+        try
+        {
+            return await Task.FromResult(_dataRepository.DeleteData(id));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting data item {Id}", id);
+            return false;
         }
     }
 }
