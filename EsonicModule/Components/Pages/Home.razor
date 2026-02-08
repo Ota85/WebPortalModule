@@ -1,7 +1,72 @@
-﻿@page "/"
+@page "/"
+@rendermode InteractiveServer
 
 <PageTitle>Home</PageTitle>
 
 <h1>Hello, world!</h1>
 
-Welcome to your new app.
+<p>Welcome to your new app.</p>
+
+@if (isLoading)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Created Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in dataItems)
+                {
+                    <tr>
+                        <td>@item.Id</td>
+                        <td>@item.Name</td>
+                        <td>@item.Description</td>
+                        <td>@item.CreatedDate.ToString("yyyy-MM-dd HH:mm")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private List<DataItem> dataItems = new();
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+        
+        // Simulate loading delay
+        await Task.Delay(500);
+        
+        // Generate dummy data
+        var summaries = new[] { "Sample A", "Sample B", "Sample C", "Sample D", "Sample E" };
+        dataItems = Enumerable.Range(1, 10).Select(index => new DataItem
+        {
+            Id = index,
+            Name = $"Item {index}",
+            Description = summaries[Random.Shared.Next(summaries.Length)],
+            CreatedDate = DateTime.Now.AddDays(-index)
+        }).ToList();
+        
+        isLoading = false;
+    }
+
+    private class DataItem
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public DateTime CreatedDate { get; set; }
+    }
+}
