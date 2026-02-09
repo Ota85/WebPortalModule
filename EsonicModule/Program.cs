@@ -15,6 +15,7 @@ builder.Services.AddDbContext<SAPDataDbContext>(options =>
 
 // Add services to the container.
 builder.Services.AddScoped<IBarcodeService, BarcodeService>();
+builder.Services.AddScoped<IMaterialStockStageService, MaterialStockStageService>();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 

@@ -1,0 +1,198 @@
+@page "/dataforprint"
+@using EsonicModule.Models
+@using EsonicModule.Services
+@inject IMaterialStockStageService MaterialStockStageService
+@rendermode InteractiveServer
+
+<PageTitle>Data for Print</PageTitle>
+
+<h1>Data for Print</h1>
+
+<p>Material stock data for printing</p>
+
+@if (isLoading)
+{
+    <p><em>Loading...</em></p>
+}
+else if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @errorMessage
+    </div>
+}
+else
+{
+    <div class="mb-3">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label for="filterMaterialNumber" class="form-label">Material Number</label>
+                <input type="text" class="form-control" id="filterMaterialNumber" @bind="filterMaterialNumber" @bind:event="oninput" @bind:after="UpdateFilteredData" placeholder="Filter by Material Number" />
+            </div>
+            <div class="col-md-3">
+                <label for="filterMaterialBatch" class="form-label">Material Batch</label>
+                <input type="text" class="form-control" id="filterMaterialBatch" @bind="filterMaterialBatch" @bind:event="oninput" @bind:after="UpdateFilteredData" placeholder="Filter by Material Batch" />
+            </div>
+            <div class="col-md-3">
+                <label for="filterStorage" class="form-label">Storage</label>
+                <input type="text" class="form-control" id="filterStorage" @bind="filterStorage" @bind:event="oninput" @bind:after="UpdateFilteredData" placeholder="Filter by Storage" />
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th style="cursor: pointer;" @onclick="@(() => SortBy("MaterialNumber"))">
+                        Material Number 
+                        @if (sortColumn == "MaterialNumber")
+                        {
+                            <span>@(sortAscending ? "▲" : "▼")</span>
+                        }
+                    </th>
+                    <th>Material Description</th>
+                    <th style="cursor: pointer;" @onclick="@(() => SortBy("MaterialBatch"))">
+                        Material Batch 
+                        @if (sortColumn == "MaterialBatch")
+                        {
+                            <span>@(sortAscending ? "▲" : "▼")</span>
+                        }
+                    </th>
+                    <th style="cursor: pointer;" @onclick="@(() => SortBy("Storage"))">
+                        Storage 
+                        @if (sortColumn == "Storage")
+                        {
+                            <span>@(sortAscending ? "▲" : "▼")</span>
+                        }
+                    </th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in FilteredData)
+                {
+                    <tr>
+                        <td>@item.MaterialNumber</td>
+                        <td>@item.MaterialDescription</td>
+                        <td>@item.MaterialBatch</td>
+                        <td>@item.Storage</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" @onclick="@(() => PrintItem(item))">
+                                <span class="bi bi-printer" aria-hidden="true"></span> Print
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (FilteredData.Count == 0)
+    {
+        <div class="alert alert-info" role="alert">
+            No data found matching the current filters.
+        </div>
+    }
+}
+
+@code {
+    private List<MaterialStockStage> materialStockStages = new();
+    private List<MaterialStockStage>? cachedFilteredData;
+    private bool isLoading = true;
+    private string? errorMessage;
+    
+    // Filtering
+    private string filterMaterialNumber = string.Empty;
+    private string filterMaterialBatch = string.Empty;
+    private string filterStorage = string.Empty;
+    
+    // Sorting
+    private string sortColumn = string.Empty;
+    private bool sortAscending = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            materialStockStages = await MaterialStockStageService.GetAllAsync() ?? new();
+            UpdateFilteredData();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading material stock data: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private List<MaterialStockStage> FilteredData => cachedFilteredData ?? new List<MaterialStockStage>();
+
+    private void UpdateFilteredData()
+    {
+        var filtered = materialStockStages.AsEnumerable();
+
+        // Apply filters
+        if (!string.IsNullOrWhiteSpace(filterMaterialNumber))
+        {
+            filtered = filtered.Where(x => 
+                x.MaterialNumber.HasValue && 
+                x.MaterialNumber.Value.ToString().Contains(filterMaterialNumber));
+        }
+
+        if (!string.IsNullOrWhiteSpace(filterMaterialBatch))
+        {
+            filtered = filtered.Where(x => 
+                !string.IsNullOrEmpty(x.MaterialBatch) && 
+                x.MaterialBatch.Contains(filterMaterialBatch, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (!string.IsNullOrWhiteSpace(filterStorage))
+        {
+            filtered = filtered.Where(x => 
+                !string.IsNullOrEmpty(x.Storage) && 
+                x.Storage.Contains(filterStorage, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Apply sorting
+        if (!string.IsNullOrEmpty(sortColumn))
+        {
+            filtered = sortColumn switch
+            {
+                "MaterialNumber" => sortAscending 
+                    ? filtered.OrderBy(x => x.MaterialNumber) 
+                    : filtered.OrderByDescending(x => x.MaterialNumber),
+                "MaterialBatch" => sortAscending 
+                    ? filtered.OrderBy(x => x.MaterialBatch) 
+                    : filtered.OrderByDescending(x => x.MaterialBatch),
+                "Storage" => sortAscending 
+                    ? filtered.OrderBy(x => x.Storage) 
+                    : filtered.OrderByDescending(x => x.Storage),
+                _ => filtered
+            };
+        }
+
+        cachedFilteredData = filtered.ToList();
+    }
+
+    private void SortBy(string columnName)
+    {
+        if (sortColumn == columnName)
+        {
+            sortAscending = !sortAscending;
+        }
+        else
+        {
+            sortColumn = columnName;
+            sortAscending = true;
+        }
+        UpdateFilteredData();
+    }
+
+    private void PrintItem(MaterialStockStage item)
+    {
+        // TODO: Implement print logic for Material Number: {item.MaterialNumber}, Batch: {item.MaterialBatch}
+        // Consider using ILogger for logging or displaying a user notification
+    }
+}
