@@ -26,15 +26,15 @@ else
         <div class="row g-3">
             <div class="col-md-3">
                 <label for="filterMaterialNumber" class="form-label">Material Number</label>
-                <input type="text" class="form-control" id="filterMaterialNumber" @bind="filterMaterialNumber" @bind:event="oninput" placeholder="Filter by Material Number" />
+                <input type="text" class="form-control" id="filterMaterialNumber" @bind="filterMaterialNumber" @bind:event="oninput" @bind:after="UpdateFilteredData" placeholder="Filter by Material Number" />
             </div>
             <div class="col-md-3">
                 <label for="filterMaterialBatch" class="form-label">Material Batch</label>
-                <input type="text" class="form-control" id="filterMaterialBatch" @bind="filterMaterialBatch" @bind:event="oninput" placeholder="Filter by Material Batch" />
+                <input type="text" class="form-control" id="filterMaterialBatch" @bind="filterMaterialBatch" @bind:event="oninput" @bind:after="UpdateFilteredData" placeholder="Filter by Material Batch" />
             </div>
             <div class="col-md-3">
                 <label for="filterStorage" class="form-label">Storage</label>
-                <input type="text" class="form-control" id="filterStorage" @bind="filterStorage" @bind:event="oninput" placeholder="Filter by Storage" />
+                <input type="text" class="form-control" id="filterStorage" @bind="filterStorage" @bind:event="oninput" @bind:after="UpdateFilteredData" placeholder="Filter by Storage" />
             </div>
         </div>
     </div>
@@ -97,6 +97,7 @@ else
 
 @code {
     private List<MaterialStockStage> materialStockStages = new();
+    private List<MaterialStockStage>? cachedFilteredData;
     private bool isLoading = true;
     private string? errorMessage;
     
@@ -114,6 +115,7 @@ else
         try
         {
             materialStockStages = await MaterialStockStageService.GetAllAsync() ?? new();
+            UpdateFilteredData();
         }
         catch (Exception ex)
         {
@@ -125,54 +127,53 @@ else
         }
     }
 
-    private List<MaterialStockStage> FilteredData
+    private List<MaterialStockStage> FilteredData => cachedFilteredData ?? new List<MaterialStockStage>();
+
+    private void UpdateFilteredData()
     {
-        get
+        var filtered = materialStockStages.AsEnumerable();
+
+        // Apply filters
+        if (!string.IsNullOrWhiteSpace(filterMaterialNumber))
         {
-            var filtered = materialStockStages.AsEnumerable();
-
-            // Apply filters
-            if (!string.IsNullOrWhiteSpace(filterMaterialNumber))
-            {
-                filtered = filtered.Where(x => 
-                    x.MaterialNumber.HasValue && 
-                    x.MaterialNumber.Value.ToString().Contains(filterMaterialNumber, StringComparison.OrdinalIgnoreCase));
-            }
-
-            if (!string.IsNullOrWhiteSpace(filterMaterialBatch))
-            {
-                filtered = filtered.Where(x => 
-                    !string.IsNullOrEmpty(x.MaterialBatch) && 
-                    x.MaterialBatch.Contains(filterMaterialBatch, StringComparison.OrdinalIgnoreCase));
-            }
-
-            if (!string.IsNullOrWhiteSpace(filterStorage))
-            {
-                filtered = filtered.Where(x => 
-                    !string.IsNullOrEmpty(x.Storage) && 
-                    x.Storage.Contains(filterStorage, StringComparison.OrdinalIgnoreCase));
-            }
-
-            // Apply sorting
-            if (!string.IsNullOrEmpty(sortColumn))
-            {
-                filtered = sortColumn switch
-                {
-                    "MaterialNumber" => sortAscending 
-                        ? filtered.OrderBy(x => x.MaterialNumber) 
-                        : filtered.OrderByDescending(x => x.MaterialNumber),
-                    "MaterialBatch" => sortAscending 
-                        ? filtered.OrderBy(x => x.MaterialBatch) 
-                        : filtered.OrderByDescending(x => x.MaterialBatch),
-                    "Storage" => sortAscending 
-                        ? filtered.OrderBy(x => x.Storage) 
-                        : filtered.OrderByDescending(x => x.Storage),
-                    _ => filtered
-                };
-            }
-
-            return filtered.ToList();
+            filtered = filtered.Where(x => 
+                x.MaterialNumber.HasValue && 
+                x.MaterialNumber.Value.ToString().Contains(filterMaterialNumber));
         }
+
+        if (!string.IsNullOrWhiteSpace(filterMaterialBatch))
+        {
+            filtered = filtered.Where(x => 
+                !string.IsNullOrEmpty(x.MaterialBatch) && 
+                x.MaterialBatch.Contains(filterMaterialBatch, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (!string.IsNullOrWhiteSpace(filterStorage))
+        {
+            filtered = filtered.Where(x => 
+                !string.IsNullOrEmpty(x.Storage) && 
+                x.Storage.Contains(filterStorage, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Apply sorting
+        if (!string.IsNullOrEmpty(sortColumn))
+        {
+            filtered = sortColumn switch
+            {
+                "MaterialNumber" => sortAscending 
+                    ? filtered.OrderBy(x => x.MaterialNumber) 
+                    : filtered.OrderByDescending(x => x.MaterialNumber),
+                "MaterialBatch" => sortAscending 
+                    ? filtered.OrderBy(x => x.MaterialBatch) 
+                    : filtered.OrderByDescending(x => x.MaterialBatch),
+                "Storage" => sortAscending 
+                    ? filtered.OrderBy(x => x.Storage) 
+                    : filtered.OrderByDescending(x => x.Storage),
+                _ => filtered
+            };
+        }
+
+        cachedFilteredData = filtered.ToList();
     }
 
     private void SortBy(string columnName)
@@ -186,12 +187,12 @@ else
             sortColumn = columnName;
             sortAscending = true;
         }
+        UpdateFilteredData();
     }
 
     private void PrintItem(MaterialStockStage item)
     {
-        // Placeholder for print functionality
-        Console.WriteLine($"Printing item: Material Number {item.MaterialNumber}, Batch {item.MaterialBatch}");
-        // TODO: Implement print logic
+        // TODO: Implement print logic for Material Number: {item.MaterialNumber}, Batch: {item.MaterialBatch}
+        // Consider using ILogger for logging or displaying a user notification
     }
 }
