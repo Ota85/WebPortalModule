@@ -9,6 +9,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ZebraDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ZebraDatabase")));
 
+// Add DbContext for SAP Data SQL Server
+builder.Services.AddDbContext<SAPDataDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SAPDataDatabase")));
+
 // Add services to the container.
 builder.Services.AddScoped<IBarcodeService, BarcodeService>();
 builder.Services.AddRazorComponents()
