@@ -136,7 +136,7 @@ else
             {
                 filtered = filtered.Where(x => 
                     x.MaterialNumber.HasValue && 
-                    x.MaterialNumber.ToString().Contains(filterMaterialNumber, StringComparison.OrdinalIgnoreCase));
+                    x.MaterialNumber.Value.ToString().Contains(filterMaterialNumber, StringComparison.OrdinalIgnoreCase));
             }
 
             if (!string.IsNullOrWhiteSpace(filterMaterialBatch))
