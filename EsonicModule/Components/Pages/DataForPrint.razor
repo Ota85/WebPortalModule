@@ -6,9 +6,9 @@
 
 <PageTitle>Data for Print</PageTitle>
 
-<h1>Data for Print</h1>
+<h1>Material stock data for printing</h1>
 
-<p>Material stock data for printing</p>
+<p>Barcodes printing</p>
 
 @if (isLoading)
 {
@@ -24,7 +24,7 @@ else
 {
     <div class="mb-3">
         <div class="row g-3">
-            <div class="col-md-3">
+            <div class="col-md-6">
                 <label for="filterMaterialNumber" class="form-label">Material Number</label>
                 <input type="text" class="form-control" id="filterMaterialNumber" @bind="filterMaterialNumber" @bind:event="oninput" @bind:after="UpdateFilteredData" placeholder="Filter by Material Number" />
             </div>
