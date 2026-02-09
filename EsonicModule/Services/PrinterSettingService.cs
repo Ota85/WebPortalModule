@@ -20,6 +20,7 @@ public class PrinterSettingService : IPrinterSettingService
 
     public async Task SaveChangesAsync(List<PrinterSetting> printerSettings)
     {
+        // Caller filters to only new or modified items
         foreach (var setting in printerSettings)
         {
             if (setting.Id == 0)
@@ -29,7 +30,7 @@ public class PrinterSettingService : IPrinterSettingService
             }
             else
             {
-                // Existing entry - update
+                // Existing entry - update only if caller determined it was modified
                 _context.PrinterSettings.Update(setting);
             }
         }

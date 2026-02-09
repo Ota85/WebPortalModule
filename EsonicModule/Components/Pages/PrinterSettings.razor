@@ -1,6 +1,7 @@
 @page "/printersettings"
 @using EsonicModule.Models
 @using EsonicModule.Services
+@using System.Net
 @inject IPrinterSettingService PrinterSettingService
 @rendermode InteractiveServer
 
@@ -101,6 +102,10 @@ else
 </style>
 
 @code {
+    private const int DefaultPrinterPort = 9100;
+    private const int MinPort = 1;
+    private const int MaxPort = 65535;
+
     private List<PrinterSettingViewModel> editableSettings = new();
     private List<PrinterSetting> originalSettings = new();
     private bool isLoading = true;
@@ -159,7 +164,7 @@ else
             Name = string.Empty,
             Description = string.Empty,
             IPAddress = string.Empty,
-            Port = 9100,
+            Port = DefaultPrinterPort,
             IsNew = true,
             IsModified = false
         });
@@ -224,9 +229,14 @@ else
                     errorMessage = "IP Address is required for all printer settings.";
                     return;
                 }
-                if (setting.Port <= 0)
+                if (!IPAddress.TryParse(setting.IPAddress, out _))
                 {
-                    errorMessage = "Port must be a positive number.";
+                    errorMessage = $"Invalid IP Address format: {setting.IPAddress}";
+                    return;
+                }
+                if (setting.Port < MinPort || setting.Port > MaxPort)
+                {
+                    errorMessage = $"Port must be between {MinPort} and {MaxPort}.";
                     return;
                 }
             }
