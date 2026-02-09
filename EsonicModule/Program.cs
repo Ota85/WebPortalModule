@@ -17,6 +17,7 @@ builder.Services.AddDbContext<SAPDataDbContext>(options =>
 builder.Services.AddScoped<IBarcodeService, BarcodeService>();
 builder.Services.AddScoped<IMaterialStockStageService, MaterialStockStageService>();
 builder.Services.AddScoped<IPrinterSettingService, PrinterSettingService>();
+builder.Services.AddScoped<IZebraTemplateService, ZebraTemplateService>();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
