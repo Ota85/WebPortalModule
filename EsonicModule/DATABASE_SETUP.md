@@ -6,19 +6,19 @@
 
 The EsonicModule is configured to connect to a MS SQL Server database with the following details:
 
-- **Server**: 10.0.16.175\ESONIC
-- **Database**: Zebra
-- **Username**: sa
+- **Server**: 10.0.21.60\PLANTIT
+- **Database**: SAPData
+- **Username**: eso_app
 - **Password**: asdfasdf
 
 ## Configuration
 
-The connection string is stored in the `appsettings.json` file (and environment-specific versions) under the `ConnectionStrings:ZebraDatabase` key.
+The connection string is stored in the `appsettings.json` file (and environment-specific versions) under the `ConnectionStrings:SAPDataDatabase` key.
 
 ```json
 {
   "ConnectionStrings": {
-    "ZebraDatabase": "Server=10.0.16.175\\ESONIC;Database=Zebra;User Id=sa;Password=asdfasdf;TrustServerCertificate=True;Encrypt=False;"
+    "SAPDataDatabase": "Server=10.0.21.60\\PLANTIT;Database=SAPData;User Id=eso_app;Password=asdfasdf;TrustServerCertificate=True;Encrypt=False;"
   }
 }
 ```
@@ -27,52 +27,38 @@ The connection string is stored in the `appsettings.json` file (and environment-
 
 ### Components Created
 
-1. **ZebraDbContext** (`Data/ZebraDbContext.cs`): Entity Framework DbContext for the Zebra database
-2. **Barcode Entity** (`Models/Barcode.cs`): Entity model for the Barcodes table
-3. **BarcodeService** (`Services/BarcodeService.cs`): Service layer for working with Barcodes
-4. **IBarcodeService** (`Services/IBarcodeService.cs`): Interface for the BarcodeService
+1. **SAPDataDbContext** (`Data/SAPDataDbContext.cs`): Entity Framework DbContext for the SAP Data database
+2. **MaterialStockStage Entity** (`Models/MaterialStockStage.cs`): Entity model for material stock data
+3. **MaterialStockStageService** (`Services/MaterialStockStageService.cs`): Service layer for working with material stock data
+4. **IMaterialStockStageService** (`Services/IMaterialStockStageService.cs`): Interface for the MaterialStockStageService
 
 ### Services Registered
 
 The following services are registered in `Program.cs`:
 
-- `ZebraDbContext`: Scoped DbContext with SQL Server provider
-- `IBarcodeService` / `BarcodeService`: Scoped service for barcode operations
+- `SAPDataDbContext`: Scoped DbContext with SQL Server provider
+- `IMaterialStockStageService` / `MaterialStockStageService`: Scoped service for material stock operations
 
-## Using the Barcode Service
+## Using the Material Stock Service
 
-You can inject `IBarcodeService` into your components or controllers to work with barcodes:
+You can inject `IMaterialStockStageService` into your components or controllers to work with material stock data:
 
 ```csharp
 public class MyComponent
 {
-    private readonly IBarcodeService _barcodeService;
+    private readonly IMaterialStockStageService _materialStockStageService;
 
-    public MyComponent(IBarcodeService barcodeService)
+    public MyComponent(IMaterialStockStageService materialStockStageService)
     {
-        _barcodeService = barcodeService;
+        _materialStockStageService = materialStockStageService;
     }
 
-    public async Task LoadBarcodesAsync()
+    public async Task LoadDataAsync()
     {
-        var barcodes = await _barcodeService.GetAllBarcodesAsync();
-        // Use the barcodes...
+        var data = await _materialStockStageService.GetAllAsync();
+        // Use the data...
     }
 }
-```
-
-## Scaffolding from Existing Database
-
-If you need to re-scaffold the Barcodes table from the database (when you have access to it), run:
-
-```bash
-dotnet ef dbcontext scaffold "Name=ConnectionStrings:ZebraDatabase" Microsoft.EntityFrameworkCore.SqlServer --table Barcodes --context ZebraDbContext --context-dir Data --output-dir Models --force
-```
-
-Or with the full connection string:
-
-```bash
-dotnet ef dbcontext scaffold "Server=10.0.16.175\ESONIC;Database=Zebra;User Id=sa;Password=asdfasdf;TrustServerCertificate=True;Encrypt=False;" Microsoft.EntityFrameworkCore.SqlServer --table Barcodes --context ZebraDbContext --context-dir Data --output-dir Models --force
 ```
 
 ## NuGet Packages

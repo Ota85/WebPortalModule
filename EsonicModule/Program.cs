@@ -5,16 +5,11 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add DbContext for SQL Server
-builder.Services.AddDbContext<ZebraDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("ZebraDatabase")));
-
 // Add DbContext for SAP Data SQL Server
 builder.Services.AddDbContext<SAPDataDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SAPDataDatabase")));
 
 // Add services to the container.
-builder.Services.AddScoped<IBarcodeService, BarcodeService>();
 builder.Services.AddScoped<IMaterialStockStageService, MaterialStockStageService>();
 builder.Services.AddScoped<IPrinterSettingService, PrinterSettingService>();
 builder.Services.AddScoped<IZebraTemplateService, ZebraTemplateService>();
