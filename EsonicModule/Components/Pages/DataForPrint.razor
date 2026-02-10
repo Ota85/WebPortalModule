@@ -77,8 +77,9 @@ else
                         <td>@item.MaterialBatch</td>
                         <td>@item.Storage</td>
                         <td>
-                            <button class="btn btn-primary btn-sm" @onclick="@(() => PrintItem(item))">
-                                <span class="bi bi-printer" aria-hidden="true"></span> Print
+                            <button class="btn btn-primary btn-sm" @onclick="@(() => PrintItem(item))" disabled="@isPrinting">
+                                <span class="bi bi-printer" aria-hidden="true"></span> 
+                                @(isPrinting ? "Printing..." : "Print")
                             </button>
                         </td>
                     </tr>
@@ -93,6 +94,14 @@ else
             No data found matching the current filters.
         </div>
     }
+
+    @if (!string.IsNullOrEmpty(printMessage))
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @printMessage
+            <button type="button" class="btn-close" @onclick="@(() => printMessage = string.Empty)"></button>
+        </div>
+    }
 }
 
 @code {
@@ -100,10 +109,12 @@ else
     private List<MaterialStockStage>? cachedFilteredData;
     private bool isLoading = true;
     private string? errorMessage;
+    private bool isPrinting = false;
+    private string printMessage = string.Empty;
     
     // Filtering
-    private string filterMaterialNumber = string.Empty;
     private string filterMaterialBatch = string.Empty;
+    private string filterMaterialNumber = string.Empty;
     private string filterStorage = string.Empty;
     
     // Sorting
@@ -190,9 +201,30 @@ else
         UpdateFilteredData();
     }
 
-    private void PrintItem(MaterialStockStage item)
+    private async Task PrintItem(MaterialStockStage item)
     {
-        // TODO: Implement print logic for Material Number: {item.MaterialNumber}, Batch: {item.MaterialBatch}
-        // Consider using ILogger for logging or displaying a user notification
+        try
+        {
+            isPrinting = true;
+            printMessage = string.Empty;
+            StateHasChanged();
+
+            string printerIp = "10.0.5.31";
+            int port = 9100;
+            string zpl = "^XA^FO50,50^ADN,36,20^FDHello, World!^FS^XZ";
+
+            await MaterialStockStageService.PrintZplAsync(printerIp, port, zpl);
+            
+            printMessage = $"Successfully printed label for Material Number: {item.MaterialNumber}, Batch: {item.MaterialBatch}";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error printing label: {ex.Message}";
+        }
+        finally
+        {
+            isPrinting = false;
+            StateHasChanged();
+        }
     }
 }
