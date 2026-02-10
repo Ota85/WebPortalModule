@@ -24,7 +24,7 @@ public class MaterialStockStageService : IMaterialStockStageService
     {
         printerIp = "10.0.5.31";
         port = 9100;
-        zpl = "^XA^FO50,50^ADN,36,20^FDHello, World!^FS^XZ";
+        zpl = "^XA^FO50,50^ADN,36,20^FDPozdrav z Pardubic!^FS^XZ";
 
 
         using var client = new TcpClient();
