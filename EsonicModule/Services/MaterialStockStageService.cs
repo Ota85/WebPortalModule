@@ -20,18 +20,13 @@ public class MaterialStockStageService : IMaterialStockStageService
         return await _context.MaterialStockStages.ToListAsync();
     }
 
-    public async Task PrintZplAsync(string printerIp, int port, string zpl)
+    public async Task PrintZplAsync(MaterialStockStage item, PrinterSetting printer, ZebraTemplate template)
     {
-        printerIp = "10.0.5.31";
-        port = 9100;
-        zpl = "^XA^FO50,50^ADN,36,20^FDPozdrav z Pardubic!^FS^XZ";
-
-
         using var client = new TcpClient();
-        await client.ConnectAsync(printerIp, port);
+        await client.ConnectAsync(printer.IPAddress, printer.Port);
 
         using NetworkStream stream = client.GetStream();
-        byte[] data = Encoding.ASCII.GetBytes(zpl);
+        byte[] data = Encoding.ASCII.GetBytes(template.Template);
 
         await stream.WriteAsync(data, 0, data.Length);
         await stream.FlushAsync();
