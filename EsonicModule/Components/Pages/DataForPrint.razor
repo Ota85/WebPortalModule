@@ -24,8 +24,8 @@ else if (!string.IsNullOrEmpty(errorMessage))
         @errorMessage
     </div>
 }
-else
-{
+@* else 
+{*@
     <div class="mb-3 p-3 border rounded" style="background-color: #f8f9fa;">
         <div class="row g-3">
             <div class="col-md-6">
@@ -159,7 +159,7 @@ else
             <button type="button" class="btn-close" @onclick="@(() => printMessage = string.Empty)"></button>
         </div>
     }
-}
+@* } *@
 
 @code {
     private List<MaterialStockStageDto> materialStockStages = new();
@@ -337,7 +337,7 @@ else
                 return;
             }
 
-            var confirmed = await JS.InvokeAsync<bool>("confirmDialog.show", $"Are you sure you want to print label for {item.MaterialDescription}?");
+            var confirmed = await JS.InvokeAsync<bool>("confirmDialog.show", $"Print label for {item.MaterialDescription}, {item.MaterialNumber}-{item.Storage} ?");
             if (!confirmed)
             {
                 return;

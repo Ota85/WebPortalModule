@@ -175,7 +175,7 @@ else
 
     private async Task RemoveRow(int index)
     {
-        var confirmed = await JS.InvokeAsync<bool>("confirmDialog.show", "Are you sure you want to delete this printer setting?");
+        var confirmed = await JS.InvokeAsync<bool>("confirmDialog.show", "Are you sure you want to DELETE this printer setting?");
         if (confirmed)
         {
             editableSettings.RemoveAt(index);
@@ -217,7 +217,7 @@ else
 
     private async Task SaveChanges()
     {
-        var confirmed = await JS.InvokeAsync<bool>("confirmDialog.show", "Are you sure you want to SAVE changes?");
+        var confirmed = await JS.InvokeAsync<bool>("confirmDialog.show", "SAVE changes?");
         if (!confirmed)
         {
             return;
