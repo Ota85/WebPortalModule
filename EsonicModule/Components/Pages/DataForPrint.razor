@@ -2,6 +2,8 @@
 @using EsonicModule.Models
 @using EsonicModule.Services
 @inject IMaterialStockStageService MaterialStockStageService
+@inject IPrinterSettingService PrinterSettingService
+@inject IZebraTemplateService ZebraTemplateService
 @rendermode InteractiveServer
 
 <PageTitle>Data for Print</PageTitle>
@@ -22,6 +24,31 @@ else if (!string.IsNullOrEmpty(errorMessage))
 }
 else
 {
+    <div class="mb-3">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label for="printerSelect" class="form-label">Printer</label>
+                <select class="form-select" id="printerSelect" @bind="selectedPrinterId">
+                    <option value="0">-- Select Printer --</option>
+                    @foreach (var printer in printerSettings)
+                    {
+                        <option value="@printer.Id">@printer.Name (@printer.IPAddress:@printer.Port)</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label for="templateSelect" class="form-label">Template</label>
+                <select class="form-select" id="templateSelect" @bind="selectedTemplateId">
+                    <option value="0">-- Select Template --</option>
+                    @foreach (var template in zebraTemplates)
+                    {
+                        <option value="@template.Id">@template.Name</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+
     <div class="mb-3">
         <div class="row g-3">
             <div class="col-md-6">
@@ -107,6 +134,10 @@ else
 @code {
     private List<MaterialStockStage> materialStockStages = new();
     private List<MaterialStockStage>? cachedFilteredData;
+    private List<PrinterSetting> printerSettings = new();
+    private List<ZebraTemplate> zebraTemplates = new();
+    private int selectedPrinterId = 0;
+    private int selectedTemplateId = 0;
     private bool isLoading = true;
     private string? errorMessage;
     private bool isPrinting = false;
@@ -126,6 +157,8 @@ else
         try
         {
             materialStockStages = await MaterialStockStageService.GetAllAsync() ?? new();
+            printerSettings = await PrinterSettingService.GetAllAsync() ?? new();
+            zebraTemplates = await ZebraTemplateService.GetAllAsync() ?? new();
             UpdateFilteredData();
         }
         catch (Exception ex)
@@ -207,13 +240,38 @@ else
         {
             isPrinting = true;
             printMessage = string.Empty;
+            errorMessage = string.Empty;
             StateHasChanged();
 
-            string printerIp = "10.0.5.31";
-            int port = 9100;
-            string zpl = "^XA^FO50,50^ADN,36,20^FDHello, World!^FS^XZ";
+            // Validate selections
+            if (selectedPrinterId == 0)
+            {
+                errorMessage = "Please select a printer.";
+                return;
+            }
 
-            await MaterialStockStageService.PrintZplAsync(printerIp, port, zpl);
+            if (selectedTemplateId == 0)
+            {
+                errorMessage = "Please select a template.";
+                return;
+            }
+
+            var printer = printerSettings.FirstOrDefault(p => p.Id == selectedPrinterId);
+            var template = zebraTemplates.FirstOrDefault(t => t.Id == selectedTemplateId);
+
+            if (printer == null)
+            {
+                errorMessage = "Selected printer not found.";
+                return;
+            }
+
+            if (template == null)
+            {
+                errorMessage = "Selected template not found.";
+                return;
+            }
+
+            await MaterialStockStageService.PrintZplAsync(item, printer, template);
             
             printMessage = $"Successfully printed label for Material Number: {item.MaterialNumber}, Batch: {item.MaterialBatch}";
         }
