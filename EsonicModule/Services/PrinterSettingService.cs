@@ -28,17 +28,20 @@ public class PrinterSettingService : IPrinterSettingService
         // Caller filters to only new or modified items
         foreach (var dto in printerSettings)
         {
-            var entity = _mapper.Map<PrinterSetting>(dto);
-            
-            if (entity.Id == 0)
+            if (dto.Id == 0)
             {
                 // New entry
+                var entity = _mapper.Map<PrinterSetting>(dto);
                 _context.PrinterSettings.Add(entity);
             }
             else
             {
-                // Existing entry - update only if caller determined it was modified
-                _context.PrinterSettings.Update(entity);
+                // Existing entry - fetch from database and update
+                var existingEntity = await _context.PrinterSettings.FindAsync(dto.Id);
+                if (existingEntity != null)
+                {
+                    _mapper.Map(dto, existingEntity);
+                }
             }
         }
         

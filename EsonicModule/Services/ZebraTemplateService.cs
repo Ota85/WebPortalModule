@@ -28,17 +28,20 @@ public class ZebraTemplateService : IZebraTemplateService
         // Caller filters to only new or modified items
         foreach (var dto in zebraTemplates)
         {
-            var entity = _mapper.Map<ZebraTemplate>(dto);
-            
-            if (entity.Id == 0)
+            if (dto.Id == 0)
             {
                 // New entry
+                var entity = _mapper.Map<ZebraTemplate>(dto);
                 _context.ZebraTemplates.Add(entity);
             }
             else
             {
-                // Existing entry - update only if caller determined it was modified
-                _context.ZebraTemplates.Update(entity);
+                // Existing entry - fetch from database and update
+                var existingEntity = await _context.ZebraTemplates.FindAsync(dto.Id);
+                if (existingEntity != null)
+                {
+                    _mapper.Map(dto, existingEntity);
+                }
             }
         }
         
