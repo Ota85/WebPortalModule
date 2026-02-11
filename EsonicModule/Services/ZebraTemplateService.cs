@@ -26,6 +26,11 @@ public class ZebraTemplateService : IZebraTemplateService
     public async Task SaveChangesAsync(List<ZebraTemplateDto> zebraTemplates)
     {
         // Caller filters to only new or modified items
+        var updateIds = zebraTemplates.Where(dto => dto.Id > 0).Select(dto => dto.Id).ToList();
+        var existingEntities = await _context.ZebraTemplates
+            .Where(e => updateIds.Contains(e.Id))
+            .ToDictionaryAsync(e => e.Id);
+
         foreach (var dto in zebraTemplates)
         {
             if (dto.Id == 0)
@@ -34,14 +39,10 @@ public class ZebraTemplateService : IZebraTemplateService
                 var entity = _mapper.Map<ZebraTemplate>(dto);
                 _context.ZebraTemplates.Add(entity);
             }
-            else
+            else if (existingEntities.TryGetValue(dto.Id, out var existingEntity))
             {
-                // Existing entry - fetch from database and update
-                var existingEntity = await _context.ZebraTemplates.FindAsync(dto.Id);
-                if (existingEntity != null)
-                {
-                    _mapper.Map(dto, existingEntity);
-                }
+                // Existing entry - update properties
+                _mapper.Map(dto, existingEntity);
             }
         }
         
