@@ -9,6 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<SAPDataDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SAPDataDatabase")));
 
+// Add AutoMapper
+builder.Services.AddAutoMapper(typeof(Program));
+
 // Add services to the container.
 builder.Services.AddScoped<IMaterialStockStageService, MaterialStockStageService>();
 builder.Services.AddScoped<IPrinterSettingService, PrinterSettingService>();

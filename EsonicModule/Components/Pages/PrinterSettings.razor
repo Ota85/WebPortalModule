@@ -1,5 +1,5 @@
 @page "/printersettings"
-@using EsonicModule.Models
+@using EsonicModule.DTOs
 @using EsonicModule.Services
 @using System.Net
 @inject IPrinterSettingService PrinterSettingService
@@ -107,7 +107,7 @@ else
     private const int MaxPort = 65535;
 
     private List<PrinterSettingViewModel> editableSettings = new();
-    private List<PrinterSetting> originalSettings = new();
+    private List<PrinterSettingDto> originalSettings = new();
     private bool isLoading = true;
     private string? errorMessage;
     private string? successMessage;
@@ -126,7 +126,7 @@ else
             successMessage = null;
 
             var settings = await PrinterSettingService.GetAllAsync();
-            originalSettings = settings.Select(s => new PrinterSetting
+            originalSettings = settings.Select(s => new PrinterSettingDto
             {
                 Id = s.Id,
                 Name = s.Name,
@@ -244,7 +244,7 @@ else
             // Get only new or modified settings
             var settingsToSave = editableSettings
                 .Where(s => s.IsNew || s.IsModified)
-                .Select(s => new PrinterSetting
+                .Select(s => new PrinterSettingDto
                 {
                     Id = s.Id,
                     Name = s.Name,

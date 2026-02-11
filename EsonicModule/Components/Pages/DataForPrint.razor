@@ -1,5 +1,5 @@
 @page "/"
-@using EsonicModule.Models
+@using EsonicModule.DTOs
 @using EsonicModule.Services
 @inject IMaterialStockStageService MaterialStockStageService
 @inject IPrinterSettingService PrinterSettingService
@@ -132,10 +132,10 @@ else
 }
 
 @code {
-    private List<MaterialStockStage> materialStockStages = new();
-    private List<MaterialStockStage>? cachedFilteredData;
-    private List<PrinterSetting> printerSettings = new();
-    private List<ZebraTemplate> zebraTemplates = new();
+    private List<MaterialStockStageDto> materialStockStages = new();
+    private List<MaterialStockStageDto>? cachedFilteredData;
+    private List<PrinterSettingDto> printerSettings = new();
+    private List<ZebraTemplateDto> zebraTemplates = new();
     private int selectedPrinterId = 0;
     private int selectedTemplateId = 0;
     private bool isLoading = true;
@@ -171,7 +171,7 @@ else
         }
     }
 
-    private List<MaterialStockStage> FilteredData => cachedFilteredData ?? new List<MaterialStockStage>();
+    private List<MaterialStockStageDto> FilteredData => cachedFilteredData ?? new List<MaterialStockStageDto>();
 
     private void UpdateFilteredData()
     {
@@ -234,7 +234,7 @@ else
         UpdateFilteredData();
     }
 
-    private async Task PrintItem(MaterialStockStage item)
+    private async Task PrintItem(MaterialStockStageDto item)
     {
         try
         {

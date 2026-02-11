@@ -1,4 +1,6 @@
+using AutoMapper;
 using EsonicModule.Data;
+using EsonicModule.DTOs;
 using EsonicModule.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Sockets;
@@ -9,18 +11,21 @@ namespace EsonicModule.Services;
 public class MaterialStockStageService : IMaterialStockStageService
 {
     private readonly SAPDataDbContext _context;
+    private readonly IMapper _mapper;
 
-    public MaterialStockStageService(SAPDataDbContext context)
+    public MaterialStockStageService(SAPDataDbContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
-    public async Task<List<MaterialStockStage>> GetAllAsync()
+    public async Task<List<MaterialStockStageDto>> GetAllAsync()
     {
-        return await _context.MaterialStockStages.ToListAsync();
+        var entities = await _context.MaterialStockStages.ToListAsync();
+        return _mapper.Map<List<MaterialStockStageDto>>(entities);
     }
 
-    public async Task PrintZplAsync(MaterialStockStage item, PrinterSetting printer, ZebraTemplate template)
+    public async Task PrintZplAsync(MaterialStockStageDto item, PrinterSettingDto printer, ZebraTemplateDto template)
     {
         using var client = new TcpClient();
         await client.ConnectAsync(printer.IPAddress, printer.Port);
