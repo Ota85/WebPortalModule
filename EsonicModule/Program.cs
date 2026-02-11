@@ -45,7 +45,14 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 app.UseStatusCodePagesWithReExecute("/not-found");
+
+
+app.UsePathBase("/EsonicModule");
+
 app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
 
 app.UseAntiforgery();
 
