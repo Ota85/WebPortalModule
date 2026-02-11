@@ -19,9 +19,32 @@ public class MaterialStockStageService : IMaterialStockStageService
         _mapper = mapper;
     }
 
-    public async Task<List<MaterialStockStageDto>> GetAllAsync()
+    public async Task<List<MaterialStockStageDto>> GetAllAsync(DateTime? dateFrom = null, DateTime? dateTo = null)
     {
-        var entities = await _context.MaterialStockStages.ToListAsync();
+        var query = _context.MaterialStockStages.AsQueryable();
+
+        // Apply date filtering if provided
+        if (dateFrom.HasValue)
+        {
+            // Filter by date only (ignore time component)
+            var dateFromStart = dateFrom.Value.Date;
+            query = query.Where(x => x.TimeStamp.HasValue && x.TimeStamp.Value >= dateFromStart);
+        }
+
+        if (dateTo.HasValue)
+        {
+            // Filter by date only - include the entire day (up to 23:59:59.999)
+            var dateToEnd = dateTo.Value.Date.AddDays(1).AddTicks(-1);
+            query = query.Where(x => x.TimeStamp.HasValue && x.TimeStamp.Value <= dateToEnd);
+        }
+
+        // Filter out null TimeStamp values and order by TimeStamp descending, then take top 250
+        var entities = await query
+            .Where(x => x.TimeStamp.HasValue)
+            .OrderByDescending(x => x.TimeStamp)
+            .Take(250)
+            .ToListAsync();
+
         return _mapper.Map<List<MaterialStockStageDto>>(entities);
     }
 

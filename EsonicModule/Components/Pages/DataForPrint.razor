@@ -51,6 +51,25 @@ else
 
     <div class="mb-3">
         <div class="row g-3">
+            <div class="col-md-3">
+                <label for="filterDateFrom" class="form-label">Date From</label>
+                <input type="date" class="form-control" id="filterDateFrom" @bind="filterDateFrom" @bind:event="onchange" @bind:after="ReloadData" />
+            </div>
+            <div class="col-md-3">
+                <label for="filterDateTo" class="form-label">Date To</label>
+                <input type="date" class="form-control" id="filterDateTo" @bind="filterDateTo" @bind:event="onchange" @bind:after="ReloadData" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">&nbsp;</label>
+                <div>
+                    <button class="btn btn-secondary" @onclick="ClearDateFilters">Clear Date Filters</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <div class="row g-3">
             <div class="col-md-6">
                 <label for="filterMaterialNumber" class="form-label">Material Number</label>
                 <input type="text" class="form-control" id="filterMaterialNumber" @bind="filterMaterialNumber" @bind:event="oninput" @bind:after="UpdateFilteredData" placeholder="Filter by Material Number" />
@@ -143,6 +162,10 @@ else
     private bool isPrinting = false;
     private string printMessage = string.Empty;
     
+    // Date filtering
+    private DateTime? filterDateFrom;
+    private DateTime? filterDateTo;
+    
     // Filtering
     private string filterMaterialBatch = string.Empty;
     private string filterMaterialNumber = string.Empty;
@@ -156,6 +179,7 @@ else
     {
         try
         {
+            // Initial load without date filters - loads top 250 by TimeStamp descending
             materialStockStages = await MaterialStockStageService.GetAllAsync() ?? new();
             printerSettings = await PrinterSettingService.GetAllAsync() ?? new();
             zebraTemplates = await ZebraTemplateService.GetAllAsync() ?? new();
@@ -169,6 +193,36 @@ else
         {
             isLoading = false;
         }
+    }
+
+    private async Task ReloadData()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = string.Empty;
+            StateHasChanged();
+
+            // Reload data from service with date filters
+            materialStockStages = await MaterialStockStageService.GetAllAsync(filterDateFrom, filterDateTo) ?? new();
+            UpdateFilteredData();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading material stock data: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ClearDateFilters()
+    {
+        filterDateFrom = null;
+        filterDateTo = null;
+        await ReloadData();
     }
 
     private List<MaterialStockStageDto> FilteredData => cachedFilteredData ?? new List<MaterialStockStageDto>();
