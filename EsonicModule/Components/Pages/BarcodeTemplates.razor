@@ -1,7 +1,9 @@
 @page "/barcodetemplates"
 @using EsonicModule.DTOs
 @using EsonicModule.Services
+@using Microsoft.JSInterop
 @inject IZebraTemplateService ZebraTemplateService
+@inject IJSRuntime JS
 @rendermode InteractiveServer
 
 <PageTitle>Barcode Templates</PageTitle>
@@ -159,10 +161,14 @@ else
         successMessage = null;
     }
 
-    private void RemoveRow(int index)
+    private async Task RemoveRow(int index)
     {
-        editableTemplates.RemoveAt(index);
-        successMessage = null;
+        var confirmed = await JS.InvokeAsync<bool>("confirmDialog.show", "Are you sure you want to remove this barcode template?");
+        if (confirmed)
+        {
+            editableTemplates.RemoveAt(index);
+            successMessage = null;
+        }
     }
 
     private void MarkAsModified(ZebraTemplateViewModel template)
@@ -198,6 +204,12 @@ else
 
     private async Task SaveChanges()
     {
+        var confirmed = await JS.InvokeAsync<bool>("confirmDialog.show", "Are you sure you want to save these changes?");
+        if (!confirmed)
+        {
+            return;
+        }
+
         try
         {
             errorMessage = null;

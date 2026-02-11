@@ -2,7 +2,9 @@
 @using EsonicModule.DTOs
 @using EsonicModule.Services
 @using System.Net
+@using Microsoft.JSInterop
 @inject IPrinterSettingService PrinterSettingService
+@inject IJSRuntime JS
 @rendermode InteractiveServer
 
 <PageTitle>Printer Settings</PageTitle>
@@ -171,10 +173,14 @@ else
         successMessage = null;
     }
 
-    private void RemoveRow(int index)
+    private async Task RemoveRow(int index)
     {
-        editableSettings.RemoveAt(index);
-        successMessage = null;
+        var confirmed = await JS.InvokeAsync<bool>("confirmDialog.show", "Are you sure you want to remove this printer setting?");
+        if (confirmed)
+        {
+            editableSettings.RemoveAt(index);
+            successMessage = null;
+        }
     }
 
     private void MarkAsModified(PrinterSettingViewModel setting)
@@ -211,6 +217,12 @@ else
 
     private async Task SaveChanges()
     {
+        var confirmed = await JS.InvokeAsync<bool>("confirmDialog.show", "Are you sure you want to save these changes?");
+        if (!confirmed)
+        {
+            return;
+        }
+
         try
         {
             errorMessage = null;

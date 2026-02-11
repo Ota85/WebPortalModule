@@ -1,9 +1,11 @@
 @page "/"
 @using EsonicModule.DTOs
 @using EsonicModule.Services
+@using Microsoft.JSInterop
 @inject IMaterialStockStageService MaterialStockStageService
 @inject IPrinterSettingService PrinterSettingService
 @inject IZebraTemplateService ZebraTemplateService
+@inject IJSRuntime JS
 @rendermode InteractiveServer
 
 <PageTitle>Data for Print</PageTitle>
@@ -332,6 +334,12 @@ else
             if (template == null)
             {
                 errorMessage = "Selected template not found.";
+                return;
+            }
+
+            var confirmed = await JS.InvokeAsync<bool>("confirmDialog.show", "Are you sure you want to print this label?");
+            if (!confirmed)
+            {
                 return;
             }
 
