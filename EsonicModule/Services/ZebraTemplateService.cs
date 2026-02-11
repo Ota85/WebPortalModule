@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 using EsonicModule.Data;
+using EsonicModule.DTOs;
 using EsonicModule.Models;
 
 namespace EsonicModule.Services;
@@ -7,31 +9,36 @@ namespace EsonicModule.Services;
 public class ZebraTemplateService : IZebraTemplateService
 {
     private readonly SAPDataDbContext _context;
+    private readonly IMapper _mapper;
 
-    public ZebraTemplateService(SAPDataDbContext context)
+    public ZebraTemplateService(SAPDataDbContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
-    public async Task<List<ZebraTemplate>> GetAllAsync()
+    public async Task<List<ZebraTemplateDto>> GetAllAsync()
     {
-        return await _context.ZebraTemplates.ToListAsync();
+        var entities = await _context.ZebraTemplates.ToListAsync();
+        return _mapper.Map<List<ZebraTemplateDto>>(entities);
     }
 
-    public async Task SaveChangesAsync(List<ZebraTemplate> zebraTemplates)
+    public async Task SaveChangesAsync(List<ZebraTemplateDto> zebraTemplates)
     {
         // Caller filters to only new or modified items
-        foreach (var template in zebraTemplates)
+        foreach (var dto in zebraTemplates)
         {
-            if (template.Id == 0)
+            var entity = _mapper.Map<ZebraTemplate>(dto);
+            
+            if (entity.Id == 0)
             {
                 // New entry
-                _context.ZebraTemplates.Add(template);
+                _context.ZebraTemplates.Add(entity);
             }
             else
             {
                 // Existing entry - update only if caller determined it was modified
-                _context.ZebraTemplates.Update(template);
+                _context.ZebraTemplates.Update(entity);
             }
         }
         

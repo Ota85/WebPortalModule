@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 using EsonicModule.Data;
+using EsonicModule.DTOs;
 using EsonicModule.Models;
 
 namespace EsonicModule.Services;
@@ -7,31 +9,36 @@ namespace EsonicModule.Services;
 public class PrinterSettingService : IPrinterSettingService
 {
     private readonly SAPDataDbContext _context;
+    private readonly IMapper _mapper;
 
-    public PrinterSettingService(SAPDataDbContext context)
+    public PrinterSettingService(SAPDataDbContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
-    public async Task<List<PrinterSetting>> GetAllAsync()
+    public async Task<List<PrinterSettingDto>> GetAllAsync()
     {
-        return await _context.PrinterSettings.ToListAsync();
+        var entities = await _context.PrinterSettings.ToListAsync();
+        return _mapper.Map<List<PrinterSettingDto>>(entities);
     }
 
-    public async Task SaveChangesAsync(List<PrinterSetting> printerSettings)
+    public async Task SaveChangesAsync(List<PrinterSettingDto> printerSettings)
     {
         // Caller filters to only new or modified items
-        foreach (var setting in printerSettings)
+        foreach (var dto in printerSettings)
         {
-            if (setting.Id == 0)
+            var entity = _mapper.Map<PrinterSetting>(dto);
+            
+            if (entity.Id == 0)
             {
                 // New entry
-                _context.PrinterSettings.Add(setting);
+                _context.PrinterSettings.Add(entity);
             }
             else
             {
                 // Existing entry - update only if caller determined it was modified
-                _context.PrinterSettings.Update(setting);
+                _context.PrinterSettings.Update(entity);
             }
         }
         

@@ -1,5 +1,5 @@
 @page "/barcodetemplates"
-@using EsonicModule.Models
+@using EsonicModule.DTOs
 @using EsonicModule.Services
 @inject IZebraTemplateService ZebraTemplateService
 @rendermode InteractiveServer
@@ -98,7 +98,7 @@ else
 
 @code {
     private List<ZebraTemplateViewModel> editableTemplates = new();
-    private List<ZebraTemplate> originalTemplates = new();
+    private List<ZebraTemplateDto> originalTemplates = new();
     private bool isLoading = true;
     private string? errorMessage;
     private string? successMessage;
@@ -117,7 +117,7 @@ else
             successMessage = null;
 
             var templates = await ZebraTemplateService.GetAllAsync();
-            originalTemplates = templates.Select(t => new ZebraTemplate
+            originalTemplates = templates.Select(t => new ZebraTemplateDto
             {
                 Id = t.Id,
                 Name = t.Name,
@@ -221,7 +221,7 @@ else
             // Get only new or modified templates
             var templatesToSave = editableTemplates
                 .Where(t => t.IsNew || t.IsModified)
-                .Select(t => new ZebraTemplate
+                .Select(t => new ZebraTemplateDto
                 {
                     Id = t.Id,
                     Name = t.Name,

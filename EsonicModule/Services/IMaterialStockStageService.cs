@@ -1,9 +1,9 @@
-using EsonicModule.Models;
+using EsonicModule.DTOs;
 
 namespace EsonicModule.Services;
 
 public interface IMaterialStockStageService
 {
-    Task<List<MaterialStockStage>> GetAllAsync();
-    Task PrintZplAsync(MaterialStockStage item, PrinterSetting printer, ZebraTemplate template);
+    Task<List<MaterialStockStageDto>> GetAllAsync();
+    Task PrintZplAsync(MaterialStockStageDto item, PrinterSettingDto printer, ZebraTemplateDto template);
 }

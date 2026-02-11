@@ -1,9 +1,9 @@
-using EsonicModule.Models;
+using EsonicModule.DTOs;
 
 namespace EsonicModule.Services;
 
 public interface IPrinterSettingService
 {
-    Task<List<PrinterSetting>> GetAllAsync();
-    Task SaveChangesAsync(List<PrinterSetting> printerSettings);
+    Task<List<PrinterSettingDto>> GetAllAsync();
+    Task SaveChangesAsync(List<PrinterSettingDto> printerSettings);
 }
