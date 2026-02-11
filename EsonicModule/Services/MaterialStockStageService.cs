@@ -38,8 +38,9 @@ public class MaterialStockStageService : IMaterialStockStageService
             query = query.Where(x => x.TimeStamp.HasValue && x.TimeStamp.Value <= dateToEnd);
         }
 
-        // Order by TimeStamp descending and take top 250
+        // Filter out null TimeStamp values and order by TimeStamp descending, then take top 250
         var entities = await query
+            .Where(x => x.TimeStamp.HasValue)
             .OrderByDescending(x => x.TimeStamp)
             .Take(250)
             .ToListAsync();
