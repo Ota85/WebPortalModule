@@ -53,8 +53,14 @@ public class MaterialStockStageService : IMaterialStockStageService
         using var client = new TcpClient();
         await client.ConnectAsync(printer.IPAddress, printer.Port);
 
+        string zplCode = template.Template
+            .Replace("{MaterialDescription}", item.MaterialDescription ?? string.Empty)
+            .Replace("{Storage}", item.Storage ?? string.Empty)
+            .Replace("{MaterialNumber}", item.MaterialNumber.ToString())
+            .Replace("{MaterialBatch}", item.MaterialBatch ?? string.Empty);
+
         using NetworkStream stream = client.GetStream();
-        byte[] data = Encoding.ASCII.GetBytes(template.Template);
+        byte[] data = Encoding.ASCII.GetBytes(zplCode);
 
         await stream.WriteAsync(data, 0, data.Length);
         await stream.FlushAsync();

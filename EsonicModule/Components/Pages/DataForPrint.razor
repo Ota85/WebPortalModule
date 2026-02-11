@@ -8,9 +8,9 @@
 
 <PageTitle>Data for Print</PageTitle>
 
-<h1>Material stock data for printing</h1>
+@* <h1>Material stock data for printing</h1> *@
 
-<p>Barcodes printing</p>
+<p>Material stock data barcodes for printing</p>
 
 @if (isLoading)
 {
@@ -62,8 +62,8 @@ else
             <div class="col-md-6">
                 <label class="form-label">&nbsp;</label>
                 <div>
-                    <button class="btn btn-primary me-2" @onclick="ReloadData">Data Reload</button>
                     <button class="btn btn-secondary" @onclick="ClearDateFilters">Clear Date Filters</button>
+                    <button class="btn btn-primary me-2" @onclick="ReloadData">Data Reload</button>
                 </div>
             </div>
         </div>
