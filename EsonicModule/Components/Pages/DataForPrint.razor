@@ -337,7 +337,7 @@ else
                 return;
             }
 
-            var confirmed = await JS.InvokeAsync<bool>("confirmDialog.show", "Are you sure you want to print this label?");
+            var confirmed = await JS.InvokeAsync<bool>("confirmDialog.show", $"Are you sure you want to print label for {item.MaterialDescription}?");
             if (!confirmed)
             {
                 return;
