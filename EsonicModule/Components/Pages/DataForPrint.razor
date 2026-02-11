@@ -24,7 +24,7 @@ else if (!string.IsNullOrEmpty(errorMessage))
 }
 else
 {
-    <div class="mb-3">
+    <div class="mb-3 p-3 border rounded" style="background-color: #f8f9fa;">
         <div class="row g-3">
             <div class="col-md-6">
                 <label for="printerSelect" class="form-label">Printer</label>
@@ -49,19 +49,20 @@ else
         </div>
     </div>
 
-    <div class="mb-3">
+    <div class="mb-3 p-3 border rounded" style="background-color: #f8f9fa;">
         <div class="row g-3">
             <div class="col-md-3">
                 <label for="filterDateFrom" class="form-label">Date From</label>
-                <input type="date" class="form-control" id="filterDateFrom" @bind="filterDateFrom" @bind:event="onchange" @bind:after="ReloadData" />
+                <input type="date" class="form-control" id="filterDateFrom" @bind="filterDateFrom" />
             </div>
             <div class="col-md-3">
                 <label for="filterDateTo" class="form-label">Date To</label>
-                <input type="date" class="form-control" id="filterDateTo" @bind="filterDateTo" @bind:event="onchange" @bind:after="ReloadData" />
+                <input type="date" class="form-control" id="filterDateTo" @bind="filterDateTo" />
             </div>
             <div class="col-md-6">
                 <label class="form-label">&nbsp;</label>
                 <div>
+                    <button class="btn btn-primary me-2" @onclick="ReloadData">Data Reload</button>
                     <button class="btn btn-secondary" @onclick="ClearDateFilters">Clear Date Filters</button>
                 </div>
             </div>
@@ -111,6 +112,13 @@ else
                             <span>@(sortAscending ? "▲" : "▼")</span>
                         }
                     </th>
+                    <th style="cursor: pointer;" @onclick="@(() => SortBy("TimeStamp"))">
+                        Time Stamp 
+                        @if (sortColumn == "TimeStamp")
+                        {
+                            <span>@(sortAscending ? "▲" : "▼")</span>
+                        }
+                    </th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -122,6 +130,7 @@ else
                         <td>@item.MaterialDescription</td>
                         <td>@item.MaterialBatch</td>
                         <td>@item.Storage</td>
+                        <td>@(item.TimeStamp?.ToString("yyyy-MM-dd HH:mm:ss"))</td>
                         <td>
                             <button class="btn btn-primary btn-sm" @onclick="@(() => PrintItem(item))" disabled="@isPrinting">
                                 <span class="bi bi-printer" aria-hidden="true"></span> 
@@ -267,6 +276,9 @@ else
                 "Storage" => sortAscending 
                     ? filtered.OrderBy(x => x.Storage) 
                     : filtered.OrderByDescending(x => x.Storage),
+                "TimeStamp" => sortAscending 
+                    ? filtered.OrderBy(x => x.TimeStamp) 
+                    : filtered.OrderByDescending(x => x.TimeStamp),
                 _ => filtered
             };
         }
