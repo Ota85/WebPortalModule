@@ -3,19 +3,22 @@
 @using EsonicModule.Services
 @using System.Net
 @using Microsoft.JSInterop
+@using Microsoft.Extensions.Localization
+@using EsonicModule.Resources
 @inject IPrinterSettingService PrinterSettingService
 @inject IJSRuntime JS
+@inject IStringLocalizer<SharedResources> Localizer
 @rendermode InteractiveServer
 
-<PageTitle>Printer Settings</PageTitle>
+<PageTitle>@Localizer["PrinterSettingsPageTitle"]</PageTitle>
 
 @* <h1>Printer Settings</h1> *@
 
-<p>Manage printer configurations</p>
+<p>@Localizer["PrinterSettingsDescription"]</p>
 
 @if (isLoading)
 {
-    <p><em>Loading...</em></p>
+    <p><em>@Localizer["Loading"]</em></p>
 }
 else if (!string.IsNullOrEmpty(errorMessage))
 {
@@ -34,7 +37,7 @@ else
 
     <div class="mb-3">
         <button class="btn btn-success" @onclick="AddNewRow">
-            <span class="bi bi-plus-circle" aria-hidden="true"></span> Add New Printer
+            <span class="bi bi-plus-circle" aria-hidden="true"></span> @Localizer["AddNewPrinter"]
         </button>
     </div>
 
@@ -42,11 +45,11 @@ else
         <table class="table table-striped table-hover">
             <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>Description</th>
-                    <th>IP Address</th>
-                    <th>Port</th>
-                    <th>Actions</th>
+                    <th>@Localizer["Name"]</th>
+                    <th>@Localizer["Description"]</th>
+                    <th>@Localizer["IPAddress"]</th>
+                    <th>@Localizer["Port"]</th>
+                    <th>@Localizer["Actions"]</th>
                 </tr>
             </thead>
             <tbody>
@@ -67,7 +70,7 @@ else
                         </td>
                         <td>
                             <button class="btn btn-danger btn-sm" @onclick="() => RemoveRow(index)">
-                                <span class="bi bi-trash" aria-hidden="true"></span> Remove
+                                <span class="bi bi-trash" aria-hidden="true"></span> @Localizer["Remove"]
                             </button>
                         </td>
                     </tr>
@@ -79,16 +82,16 @@ else
     @if (editableSettings.Count == 0)
     {
         <div class="alert alert-info" role="alert">
-            No printer settings found. Click "Add New Printer" to add one.
+            @Localizer["NoPrinterSettingsFound"]
         </div>
     }
 
     <div class="mt-3">
         <button class="btn btn-secondary" @onclick="CancelChanges">
-            <span class="bi bi-x-circle" aria-hidden="true"></span> Cancel
+            <span class="bi bi-x-circle" aria-hidden="true"></span> @Localizer["Cancel"]
         </button>
         <button class="btn btn-primary ms-2" @onclick="SaveChanges" disabled="@(!HasChanges())">
-            <span class="bi bi-save" aria-hidden="true"></span> Save
+            <span class="bi bi-save" aria-hidden="true"></span> @Localizer["Save"]
         </button>
     </div>
 }
@@ -150,7 +153,7 @@ else
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error loading printer settings: {ex.Message}";
+            errorMessage = string.Format(Localizer["ErrorLoadingPrinterSettings"].Value, ex.Message);
         }
         finally
         {
@@ -175,7 +178,7 @@ else
 
     private async Task RemoveRow(int index)
     {
-        var confirmed = await JS.InvokeAsync<bool>("confirmDialog.show", "Are you sure you want to DELETE this printer setting?");
+        var confirmed = await JS.InvokeAsync<bool>("confirmDialog.show", Localizer["ConfirmDeletePrinter"].Value);
         if (confirmed)
         {
             editableSettings.RemoveAt(index);
@@ -217,7 +220,7 @@ else
 
     private async Task SaveChanges()
     {
-        var confirmed = await JS.InvokeAsync<bool>("confirmDialog.show", "SAVE changes?");
+        var confirmed = await JS.InvokeAsync<bool>("confirmDialog.show", Localizer["ConfirmSaveChanges"].Value);
         if (!confirmed)
         {
             return;
@@ -233,22 +236,22 @@ else
             {
                 if (string.IsNullOrWhiteSpace(setting.Name))
                 {
-                    errorMessage = "Name is required for all printer settings.";
+                    errorMessage = Localizer["NameRequired"].Value;
                     return;
                 }
                 if (string.IsNullOrWhiteSpace(setting.IPAddress))
                 {
-                    errorMessage = "IP Address is required for all printer settings.";
+                    errorMessage = Localizer["IPAddressRequired"].Value;
                     return;
                 }
                 if (!IPAddress.TryParse(setting.IPAddress, out _))
                 {
-                    errorMessage = $"Invalid IP Address format: {setting.IPAddress}";
+                    errorMessage = string.Format(Localizer["InvalidIPAddress"].Value, setting.IPAddress);
                     return;
                 }
                 if (setting.Port < MinPort || setting.Port > MaxPort)
                 {
-                    errorMessage = $"Port must be between {MinPort} and {MaxPort}.";
+                    errorMessage = string.Format(Localizer["PortRange"].Value, MinPort, MaxPort);
                     return;
                 }
             }
@@ -269,7 +272,7 @@ else
             if (settingsToSave.Any())
             {
                 await PrinterSettingService.SaveChangesAsync(settingsToSave);
-                successMessage = "Printer settings saved successfully!";
+                successMessage = Localizer["PrinterSettingsSaved"].Value;
                 
                 // Reload data to refresh with saved IDs and clear flags
                 await LoadData();
@@ -277,7 +280,7 @@ else
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error saving printer settings: {ex.Message}";
+            errorMessage = string.Format(Localizer["ErrorSavingPrinterSettings"].Value, ex.Message);
         }
     }
 

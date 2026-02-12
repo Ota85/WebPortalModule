@@ -2,12 +2,17 @@ using EsonicModule.Components;
 using EsonicModule.Services;
 using EsonicModule.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add DbContext for SAP Data SQL Server
 builder.Services.AddDbContext<SAPDataDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SAPDataDatabase")));
+
+// Add localization services
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(Program));
@@ -39,6 +44,20 @@ builder.Services.AddHttpClient<DataService>(client =>
 });
 
 var app = builder.Build();
+
+// Configure supported cultures - Czech as default
+var supportedCultures = new[]
+{
+    new CultureInfo("cs"), // Czech
+    new CultureInfo("en")  // English
+};
+
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture("cs"), // Czech as default
+    SupportedCultures = supportedCultures,
+    SupportedUICultures = supportedCultures
+});
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

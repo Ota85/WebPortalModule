@@ -2,19 +2,22 @@
 @using EsonicModule.DTOs
 @using EsonicModule.Services
 @using Microsoft.JSInterop
+@using Microsoft.Extensions.Localization
+@using EsonicModule.Resources
 @inject IZebraTemplateService ZebraTemplateService
 @inject IJSRuntime JS
+@inject IStringLocalizer<SharedResources> Localizer
 @rendermode InteractiveServer
 
-<PageTitle>Barcode Templates</PageTitle>
+<PageTitle>@Localizer["BarcodeTemplatesPageTitle"]</PageTitle>
 
 @* <h1>Barcode Templates</h1> *@
 
-<p>Manage barcode templates</p>
+<p>@Localizer["BarcodeTemplatesDescription"]</p>
 
 @if (isLoading)
 {
-    <p><em>Loading...</em></p>
+    <p><em>@Localizer["Loading"]</em></p>
 }
 else if (!string.IsNullOrEmpty(errorMessage))
 {
@@ -33,7 +36,7 @@ else
 
     <div class="mb-3">
         <button class="btn btn-success" @onclick="AddNewRow">
-            <span class="bi bi-plus-circle" aria-hidden="true"></span> Add New Template
+            <span class="bi bi-plus-circle" aria-hidden="true"></span> @Localizer["AddNewTemplate"]
         </button>
     </div>
 
@@ -41,10 +44,10 @@ else
         <table class="table table-striped table-hover">
             <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>Description</th>
-                    <th>Template</th>
-                    <th>Actions</th>
+                    <th>@Localizer["Name"]</th>
+                    <th>@Localizer["Description"]</th>
+                    <th>@Localizer["Template"]</th>
+                    <th>@Localizer["Actions"]</th>
                 </tr>
             </thead>
             <tbody>
@@ -62,7 +65,7 @@ else
                         </td>
                         <td>
                             <button class="btn btn-danger btn-sm" @onclick="() => RemoveRow(index)">
-                                <span class="bi bi-trash" aria-hidden="true"></span> Remove
+                                <span class="bi bi-trash" aria-hidden="true"></span> @Localizer["Remove"]
                             </button>
                         </td>
                     </tr>
@@ -74,16 +77,16 @@ else
     @if (editableTemplates.Count == 0)
     {
         <div class="alert alert-info" role="alert">
-            No barcode templates found. Click "Add New Template" to add one.
+            @Localizer["NoBarcodeTemplatesFound"]
         </div>
     }
 
     <div class="mt-3">
         <button class="btn btn-secondary" @onclick="CancelChanges">
-            <span class="bi bi-x-circle" aria-hidden="true"></span> Cancel
+            <span class="bi bi-x-circle" aria-hidden="true"></span> @Localizer["Cancel"]
         </button>
         <button class="btn btn-primary ms-2" @onclick="SaveChanges" disabled="@(!HasChanges())">
-            <span class="bi bi-save" aria-hidden="true"></span> Save
+            <span class="bi bi-save" aria-hidden="true"></span> @Localizer["Save"]
         </button>
     </div>
 }
@@ -139,7 +142,7 @@ else
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error loading barcode templates: {ex.Message}";
+            errorMessage = string.Format(Localizer["ErrorLoadingBarcodeTemplates"].Value, ex.Message);
         }
         finally
         {
@@ -163,7 +166,7 @@ else
 
     private async Task RemoveRow(int index)
     {
-        var confirmed = await JS.InvokeAsync<bool>("confirmDialog.show", "Are you sure you want to DELETE this barcode template?");
+        var confirmed = await JS.InvokeAsync<bool>("confirmDialog.show", Localizer["ConfirmDeleteTemplate"].Value);
         if (confirmed)
         {
             editableTemplates.RemoveAt(index);
@@ -204,7 +207,7 @@ else
 
     private async Task SaveChanges()
     {
-        var confirmed = await JS.InvokeAsync<bool>("confirmDialog.show", "SAVE changes?");
+        var confirmed = await JS.InvokeAsync<bool>("confirmDialog.show", Localizer["ConfirmSaveChanges"].Value);
         if (!confirmed)
         {
             return;
@@ -220,12 +223,12 @@ else
             {
                 if (string.IsNullOrWhiteSpace(template.Name))
                 {
-                    errorMessage = "Name is required for all barcode templates.";
+                    errorMessage = Localizer["NameRequiredTemplate"].Value;
                     return;
                 }
                 if (string.IsNullOrWhiteSpace(template.Template))
                 {
-                    errorMessage = "Template is required for all barcode templates.";
+                    errorMessage = Localizer["TemplateRequired"].Value;
                     return;
                 }
             }
@@ -245,7 +248,7 @@ else
             if (templatesToSave.Any())
             {
                 await ZebraTemplateService.SaveChangesAsync(templatesToSave);
-                successMessage = "Barcode templates saved successfully!";
+                successMessage = Localizer["BarcodeTemplatesSaved"].Value;
                 
                 // Reload data to refresh with saved IDs and clear flags
                 await LoadData();
@@ -253,7 +256,7 @@ else
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error saving barcode templates: {ex.Message}";
+            errorMessage = string.Format(Localizer["ErrorSavingBarcodeTemplates"].Value, ex.Message);
         }
     }
 
