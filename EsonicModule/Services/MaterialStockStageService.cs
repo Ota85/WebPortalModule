@@ -60,7 +60,7 @@ public class MaterialStockStageService : IMaterialStockStageService
             .Replace("{MaterialBatch}", item.MaterialBatch ?? string.Empty);
 
         using NetworkStream stream = client.GetStream();
-        byte[] data = Encoding.ASCII.GetBytes(zplCode);
+        byte[] data = Encoding.UTF8.GetBytes(zplCode);
 
         await stream.WriteAsync(data, 0, data.Length);
         await stream.FlushAsync();
