@@ -2,22 +2,19 @@
 @using EsonicModule.DTOs
 @using EsonicModule.Services
 @using Microsoft.JSInterop
-@using Microsoft.Extensions.Localization
-@using EsonicModule.Resources
 @inject IZebraTemplateService ZebraTemplateService
 @inject IJSRuntime JS
-@inject IStringLocalizer<SharedResources> Localizer
 @rendermode InteractiveServer
 
-<PageTitle>@Localizer["BarcodeTemplatesPageTitle"]</PageTitle>
+<PageTitle>Šablony čárových kódů</PageTitle>
 
 @* <h1>Barcode Templates</h1> *@
 
-<p>@Localizer["BarcodeTemplatesDescription"]</p>
+<p>Správa šablon čárových kódů</p>
 
 @if (isLoading)
 {
-    <p><em>@Localizer["Loading"]</em></p>
+    <p><em>Načítání...</em></p>
 }
 else if (!string.IsNullOrEmpty(errorMessage))
 {
@@ -36,7 +33,7 @@ else
 
     <div class="mb-3">
         <button class="btn btn-success" @onclick="AddNewRow">
-            <span class="bi bi-plus-circle" aria-hidden="true"></span> @Localizer["AddNewTemplate"]
+            <span class="bi bi-plus-circle" aria-hidden="true"></span> Přidat novou šablonu
         </button>
     </div>
 
@@ -44,10 +41,10 @@ else
         <table class="table table-striped table-hover">
             <thead>
                 <tr>
-                    <th>@Localizer["Name"]</th>
-                    <th>@Localizer["Description"]</th>
-                    <th>@Localizer["Template"]</th>
-                    <th>@Localizer["Actions"]</th>
+                    <th>Název</th>
+                    <th>Popis</th>
+                    <th>Šablona</th>
+                    <th>Akce</th>
                 </tr>
             </thead>
             <tbody>
@@ -65,7 +62,7 @@ else
                         </td>
                         <td>
                             <button class="btn btn-danger btn-sm" @onclick="() => RemoveRow(index)">
-                                <span class="bi bi-trash" aria-hidden="true"></span> @Localizer["Remove"]
+                                <span class="bi bi-trash" aria-hidden="true"></span> Odebrat
                             </button>
                         </td>
                     </tr>
@@ -77,16 +74,16 @@ else
     @if (editableTemplates.Count == 0)
     {
         <div class="alert alert-info" role="alert">
-            @Localizer["NoBarcodeTemplatesFound"]
+            Nebyly nalezeny žádné šablony čárových kódů. Klikněte na "Přidat novou šablonu" pro přidání.
         </div>
     }
 
     <div class="mt-3">
         <button class="btn btn-secondary" @onclick="CancelChanges">
-            <span class="bi bi-x-circle" aria-hidden="true"></span> @Localizer["Cancel"]
+            <span class="bi bi-x-circle" aria-hidden="true"></span> Zrušit
         </button>
         <button class="btn btn-primary ms-2" @onclick="SaveChanges" disabled="@(!HasChanges())">
-            <span class="bi bi-save" aria-hidden="true"></span> @Localizer["Save"]
+            <span class="bi bi-save" aria-hidden="true"></span> Uložit
         </button>
     </div>
 }
@@ -142,7 +139,7 @@ else
         }
         catch (Exception ex)
         {
-            errorMessage = string.Format(Localizer["ErrorLoadingBarcodeTemplates"].Value, ex.Message);
+            errorMessage = string.Format("Chyba při načítání šablon čárových kódů: {0}", ex.Message);
         }
         finally
         {
@@ -166,7 +163,7 @@ else
 
     private async Task RemoveRow(int index)
     {
-        var confirmed = await JS.InvokeAsync<bool>("confirmDialog.show", Localizer["ConfirmDeleteTemplate"].Value);
+        var confirmed = await JS.InvokeAsync<bool>("confirmDialog.show", "Opravdu chcete SMAZAT tuto šablonu čárového kódu?");
         if (confirmed)
         {
             editableTemplates.RemoveAt(index);
@@ -207,7 +204,7 @@ else
 
     private async Task SaveChanges()
     {
-        var confirmed = await JS.InvokeAsync<bool>("confirmDialog.show", Localizer["ConfirmSaveChanges"].Value);
+        var confirmed = await JS.InvokeAsync<bool>("confirmDialog.show", "ULOŽIT změny?");
         if (!confirmed)
         {
             return;
@@ -223,12 +220,12 @@ else
             {
                 if (string.IsNullOrWhiteSpace(template.Name))
                 {
-                    errorMessage = Localizer["NameRequiredTemplate"].Value;
+                    errorMessage = "Název je povinný pro všechny šablony čárových kódů.";
                     return;
                 }
                 if (string.IsNullOrWhiteSpace(template.Template))
                 {
-                    errorMessage = Localizer["TemplateRequired"].Value;
+                    errorMessage = "Šablona je povinná pro všechny šablony čárových kódů.";
                     return;
                 }
             }
@@ -248,7 +245,7 @@ else
             if (templatesToSave.Any())
             {
                 await ZebraTemplateService.SaveChangesAsync(templatesToSave);
-                successMessage = Localizer["BarcodeTemplatesSaved"].Value;
+                successMessage = "Šablony čárových kódů úspěšně uloženy!";
                 
                 // Reload data to refresh with saved IDs and clear flags
                 await LoadData();
@@ -256,7 +253,7 @@ else
         }
         catch (Exception ex)
         {
-            errorMessage = string.Format(Localizer["ErrorSavingBarcodeTemplates"].Value, ex.Message);
+            errorMessage = string.Format("Chyba při ukládání šablon čárových kódů: {0}", ex.Message);
         }
     }
 

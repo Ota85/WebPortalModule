@@ -2,24 +2,21 @@
 @using EsonicModule.DTOs
 @using EsonicModule.Services
 @using Microsoft.JSInterop
-@using Microsoft.Extensions.Localization
-@using EsonicModule.Resources
 @inject IMaterialStockStageService MaterialStockStageService
 @inject IPrinterSettingService PrinterSettingService
 @inject IZebraTemplateService ZebraTemplateService
 @inject IJSRuntime JS
-@inject IStringLocalizer<SharedResources> Localizer
 @rendermode InteractiveServer
 
-<PageTitle>@Localizer["DataForPrintPageTitle"]</PageTitle>
+<PageTitle>Data pro tisk</PageTitle>
 
 @* <h1>Material stock data for printing</h1> *@
 
-<p>@Localizer["DataForPrintDescription"]</p>
+<p>Čárové kódy skladových dat materiálu pro tisk</p>
 
 @if (isLoading)
 {
-    <p><em>@Localizer["Loading"]</em></p>
+    <p><em>Načítání...</em></p>
 }
 else if (!string.IsNullOrEmpty(errorMessage))
 {
@@ -32,9 +29,9 @@ else if (!string.IsNullOrEmpty(errorMessage))
     <div class="mb-3 p-3 border rounded" style="background-color: #f8f9fa;">
         <div class="row g-3">
             <div class="col-md-6">
-                <label for="printerSelect" class="form-label">@Localizer["Printer"]</label>
+                <label for="printerSelect" class="form-label">Tiskárna</label>
                 <select class="form-select" id="printerSelect" @bind="selectedPrinterId">
-                    <option value="0">@Localizer["SelectPrinter"]</option>
+                    <option value="0">-- Vyberte tiskárnu --</option>
                     @foreach (var printer in printerSettings)
                     {
                         <option value="@printer.Id">@printer.Name (@printer.IPAddress:@printer.Port)</option>
@@ -42,9 +39,9 @@ else if (!string.IsNullOrEmpty(errorMessage))
                 </select>
             </div>
             <div class="col-md-6">
-                <label for="templateSelect" class="form-label">@Localizer["Template"]</label>
+                <label for="templateSelect" class="form-label">Šablona</label>
                 <select class="form-select" id="templateSelect" @bind="selectedTemplateId">
-                    <option value="0">@Localizer["SelectTemplate"]</option>
+                    <option value="0">-- Vyberte šablonu --</option>
                     @foreach (var template in zebraTemplates)
                     {
                         <option value="@template.Id">@template.Name</option>
@@ -57,18 +54,18 @@ else if (!string.IsNullOrEmpty(errorMessage))
     <div class="mb-3 p-3 border rounded" style="background-color: #f8f9fa;">
         <div class="row g-3">
             <div class="col-md-3">
-                <label for="filterDateFrom" class="form-label">@Localizer["DateFrom"]</label>
+                <label for="filterDateFrom" class="form-label">Datum od</label>
                 <input type="date" class="form-control" id="filterDateFrom" @bind="filterDateFrom" />
             </div>
             <div class="col-md-3">
-                <label for="filterDateTo" class="form-label">@Localizer["DateTo"]</label>
+                <label for="filterDateTo" class="form-label">Datum do</label>
                 <input type="date" class="form-control" id="filterDateTo" @bind="filterDateTo" />
             </div>
             <div class="col-md-6">
                 <label class="form-label">&nbsp;</label>
                 <div>
-                    <button class="btn btn-secondary" @onclick="ClearDateFilters">@Localizer["ClearDateFilters"]</button>
-                    <button class="btn btn-primary me-2" @onclick="ReloadData">@Localizer["DataReload"]</button>
+                    <button class="btn btn-secondary" @onclick="ClearDateFilters">Vymazat filtry dat</button>
+                    <button class="btn btn-primary me-2" @onclick="ReloadData">Znovu načíst data</button>
                 </div>
             </div>
         </div>
@@ -77,16 +74,16 @@ else if (!string.IsNullOrEmpty(errorMessage))
     <div class="mb-3">
         <div class="row g-3">
             <div class="col-md-6">
-                <label for="filterMaterialNumber" class="form-label">@Localizer["MaterialNumber"]</label>
-                <input type="text" class="form-control" id="filterMaterialNumber" @bind="filterMaterialNumber" @bind:event="oninput" @bind:after="UpdateFilteredData" placeholder="@Localizer["FilterByMaterialNumber"]" />
+                <label for="filterMaterialNumber" class="form-label">Číslo materiálu</label>
+                <input type="text" class="form-control" id="filterMaterialNumber" @bind="filterMaterialNumber" @bind:event="oninput" @bind:after="UpdateFilteredData" placeholder="Filtrovat podle čísla materiálu" />
             </div>
             <div class="col-md-3">
-                <label for="filterMaterialBatch" class="form-label">@Localizer["MaterialBatch"]</label>
-                <input type="text" class="form-control" id="filterMaterialBatch" @bind="filterMaterialBatch" @bind:event="oninput" @bind:after="UpdateFilteredData" placeholder="@Localizer["FilterByMaterialBatch"]" />
+                <label for="filterMaterialBatch" class="form-label">Šarže materiálu</label>
+                <input type="text" class="form-control" id="filterMaterialBatch" @bind="filterMaterialBatch" @bind:event="oninput" @bind:after="UpdateFilteredData" placeholder="Filtrovat podle šarže materiálu" />
             </div>
             <div class="col-md-3">
-                <label for="filterStorage" class="form-label">@Localizer["Storage"]</label>
-                <input type="text" class="form-control" id="filterStorage" @bind="filterStorage" @bind:event="oninput" @bind:after="UpdateFilteredData" placeholder="@Localizer["FilterByStorage"]" />
+                <label for="filterStorage" class="form-label">Sklad</label>
+                <input type="text" class="form-control" id="filterStorage" @bind="filterStorage" @bind:event="oninput" @bind:after="UpdateFilteredData" placeholder="Filtrovat podle skladu" />
             </div>
         </div>
     </div>
@@ -96,35 +93,35 @@ else if (!string.IsNullOrEmpty(errorMessage))
             <thead>
                 <tr>
                     <th style="cursor: pointer;" @onclick="@(() => SortBy("MaterialNumber"))">
-                        @Localizer["MaterialNumber"] 
+                        Číslo materiálu 
                         @if (sortColumn == "MaterialNumber")
                         {
                             <span>@(sortAscending ? "▲" : "▼")</span>
                         }
                     </th>
-                    <th>@Localizer["MaterialDescription"]</th>
+                    <th>Popis materiálu</th>
                     <th style="cursor: pointer;" @onclick="@(() => SortBy("MaterialBatch"))">
-                        @Localizer["MaterialBatch"] 
+                        Šarže materiálu 
                         @if (sortColumn == "MaterialBatch")
                         {
                             <span>@(sortAscending ? "▲" : "▼")</span>
                         }
                     </th>
                     <th style="cursor: pointer;" @onclick="@(() => SortBy("Storage"))">
-                        @Localizer["Storage"] 
+                        Sklad 
                         @if (sortColumn == "Storage")
                         {
                             <span>@(sortAscending ? "▲" : "▼")</span>
                         }
                     </th>
                     <th style="cursor: pointer;" @onclick="@(() => SortBy("TimeStamp"))">
-                        @Localizer["Timestamp"] 
+                        Časové razítko 
                         @if (sortColumn == "TimeStamp")
                         {
                             <span>@(sortAscending ? "▲" : "▼")</span>
                         }
                     </th>
-                    <th>@Localizer["Action"]</th>
+                    <th>Akce</th>
                 </tr>
             </thead>
             <tbody>
@@ -139,7 +136,7 @@ else if (!string.IsNullOrEmpty(errorMessage))
                         <td>
                             <button class="btn btn-primary btn-sm" @onclick="@(() => PrintItem(item))" disabled="@isPrinting">
                                 <span class="bi bi-printer" aria-hidden="true"></span> 
-                                @(isPrinting ? Localizer["Printing"] : Localizer["Print"])
+                                @(isPrinting ? "Tiskne se..." : "Tisk")
                             </button>
                         </td>
                     </tr>
@@ -151,7 +148,7 @@ else if (!string.IsNullOrEmpty(errorMessage))
     @if (FilteredData.Count == 0)
     {
         <div class="alert alert-info" role="alert">
-            @Localizer["NoDataFound"]
+            Nebyla nalezena žádná data odpovídající aktuálním filtrům.
         </div>
     }
 
@@ -201,7 +198,7 @@ else if (!string.IsNullOrEmpty(errorMessage))
         }
         catch (Exception ex)
         {
-            errorMessage = string.Format(Localizer["ErrorLoadingMaterialStock"].Value, ex.Message);
+            errorMessage = string.Format("Chyba při načítání skladových dat materiálu: {0}", ex.Message);
         }
         finally
         {
@@ -223,7 +220,7 @@ else if (!string.IsNullOrEmpty(errorMessage))
         }
         catch (Exception ex)
         {
-            errorMessage = string.Format(Localizer["ErrorLoadingMaterialStock"].Value, ex.Message);
+            errorMessage = string.Format("Chyba při načítání skladových dat materiálu: {0}", ex.Message);
         }
         finally
         {
