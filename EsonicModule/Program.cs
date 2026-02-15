@@ -48,13 +48,13 @@ var app = builder.Build();
 // Configure supported cultures - Czech as default
 var supportedCultures = new[]
 {
-    new CultureInfo("cs"), // Czech
-    new CultureInfo("en")  // English
+    new CultureInfo("cs-CZ"), // Czech
+    new CultureInfo("en")     // English
 };
 
 app.UseRequestLocalization(new RequestLocalizationOptions
 {
-    DefaultRequestCulture = new RequestCulture("cs"), // Czech as default
+    DefaultRequestCulture = new RequestCulture("cs-CZ"), // Czech as default
     SupportedCultures = supportedCultures,
     SupportedUICultures = supportedCultures
 });
