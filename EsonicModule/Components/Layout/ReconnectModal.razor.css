@@ -85,7 +85,13 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
+}
+
+/* Edge 86 compatibility: Replace Gap property with margin-based spacing */
+/* The adjacent sibling selector (> * + *) adds top margin to all children except the first */
+/* This replicates the behavior of gap: 1rem on flexbox containers */
+.components-reconnect-container > * + * {
+    margin-top: 1rem;
 }
 
 #components-reconnect-modal p {

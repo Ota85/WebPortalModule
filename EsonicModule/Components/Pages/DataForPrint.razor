@@ -27,7 +27,7 @@ else if (!string.IsNullOrEmpty(errorMessage))
 @* else 
 {*@
     <div class="mb-3 p-3 border rounded" style="background-color: #f8f9fa;">
-        <div class="row g-3">
+        <div class="row edge86-row">
             <div class="col-md-6">
                 <label for="printerSelect" class="form-label">Tiskárna</label>
                 <select class="form-select" id="printerSelect" @bind="selectedPrinterId">
@@ -52,7 +52,7 @@ else if (!string.IsNullOrEmpty(errorMessage))
     </div>
 
     <div class="mb-3 p-3 border rounded" style="background-color: #f8f9fa;">
-        <div class="row g-3">
+        <div class="row edge86-row">
             <div class="col-md-3">
                 <label for="filterDateFrom" class="form-label">Datum od</label>
                 <input type="date" class="form-control" id="filterDateFrom" @bind="filterDateFrom" />
@@ -72,7 +72,7 @@ else if (!string.IsNullOrEmpty(errorMessage))
     </div>
 
     <div class="mb-3">
-        <div class="row g-3">
+        <div class="row edge86-row">
             <div class="col-md-6">
                 <label for="filterMaterialNumber" class="form-label">Číslo materiálu</label>
                 <input type="text" class="form-control" id="filterMaterialNumber" @bind="filterMaterialNumber" @bind:event="oninput" @bind:after="UpdateFilteredData" placeholder="Filtrovat podle čísla materiálu" />
