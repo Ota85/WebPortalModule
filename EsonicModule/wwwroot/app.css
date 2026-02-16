@@ -65,8 +65,6 @@ h1:focus {
 /* We only need to add vertical spacing (margin-bottom) to columns */
 .edge86-row {
     --bs-gutter-x: 1rem;
-    --bs-gutter-y: 0;
-    margin-top: calc(-1 * var(--bs-gutter-y));
 }
 
 .edge86-row > [class*="col-"] {
