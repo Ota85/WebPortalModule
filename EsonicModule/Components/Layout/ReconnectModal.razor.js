@@ -1,5 +1,6 @@
 // Set up event handlers
 const reconnectModal = document.getElementById("components-reconnect-modal");
+const reconnectModalOverlay = document.getElementById("components-reconnect-modal-overlay");
 reconnectModal.addEventListener("components-reconnect-state-changed", handleReconnectStateChanged);
 
 const retryButton = document.getElementById("components-reconnect-button");
@@ -10,14 +11,22 @@ resumeButton.addEventListener("click", resume);
 
 function handleReconnectStateChanged(event) {
     if (event.detail.state === "show") {
-        reconnectModal.showModal();
+        showModal();
     } else if (event.detail.state === "hide") {
-        reconnectModal.close();
+        hideModal();
     } else if (event.detail.state === "failed") {
         document.addEventListener("visibilitychange", retryWhenDocumentBecomesVisible);
     } else if (event.detail.state === "rejected") {
         location.reload();
     }
+}
+
+function showModal() {
+    reconnectModalOverlay.classList.add("components-reconnect-modal-visible");
+}
+
+function hideModal() {
+    reconnectModalOverlay.classList.remove("components-reconnect-modal-visible");
 }
 
 async function retry() {
@@ -36,7 +45,7 @@ async function retry() {
             if (!resumeSuccessful) {
                 location.reload();
             } else {
-                reconnectModal.close();
+                hideModal();
             }
         }
     } catch (err) {
