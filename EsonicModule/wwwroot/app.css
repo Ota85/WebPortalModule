@@ -60,6 +60,15 @@ h1:focus {
 }
 
 /* Edge 86 compatibility: Replace Bootstrap g-3 (gap) with margins */
+/* Bootstrap's g-3 sets --bs-gutter-x and --bs-gutter-y to 1rem */
+/* The .row class already applies horizontal padding via --bs-gutter-x */
+/* We only need to add vertical spacing (margin-bottom) to columns */
+.edge86-row {
+    --bs-gutter-x: 1rem;
+    --bs-gutter-y: 0;
+    margin-top: calc(-1 * var(--bs-gutter-y));
+}
+
 .edge86-row > [class*="col-"] {
     margin-bottom: 1rem;
 }

@@ -87,6 +87,9 @@
     align-items: center;
 }
 
+/* Edge 86 compatibility: Replace gap property with margin-based spacing */
+/* The adjacent sibling selector (> * + *) adds top margin to all children except the first */
+/* This replicates the behavior of gap: 1rem on flexbox containers */
 .components-reconnect-container > * + * {
     margin-top: 1rem;
 }
