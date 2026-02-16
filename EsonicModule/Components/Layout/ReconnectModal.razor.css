@@ -8,14 +8,11 @@
     height: 100%;
     background-color: rgba(0, 0, 0, 0.4);
     z-index: 9999;
-    opacity: 0;
-    transition: opacity 0.5s ease-in-out;
 }
 
 /* Show the modal overlay when visible class is added */
 #components-reconnect-modal-overlay.components-reconnect-modal-visible {
     display: block;
-    opacity: 1;
     animation: components-reconnect-modal-fadeInOpacity 0.5s ease-in-out;
 }
 
