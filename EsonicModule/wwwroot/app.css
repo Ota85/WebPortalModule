@@ -58,3 +58,8 @@ h1:focus {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+/* Edge 86 compatibility: Replace Bootstrap g-3 (gap) with margins */
+.edge86-row > [class*="col-"] {
+    margin-bottom: 1rem;
+}
