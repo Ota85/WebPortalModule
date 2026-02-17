@@ -10,8 +10,6 @@
 
 <PageTitle>Data pro tisk</PageTitle>
 
-@* <h1>Material stock data for printing</h1> *@
-
 <p>Čárové kódy skladových dat materiálu pro tisk</p>
 
 @if (isLoading)
@@ -24,142 +22,264 @@ else if (!string.IsNullOrEmpty(errorMessage))
         @errorMessage
     </div>
 }
-@* else 
-{*@
-    <div class="mb-3 p-3 border rounded" style="background-color: #f8f9fa;">
-        <div class="row edge86-row">
-            <div class="col-md-6">
-                <label for="printerSelect" class="form-label">Tiskárna</label>
-                <select class="form-select" id="printerSelect" @bind="selectedPrinterId">
-                    <option value="0">-- Vyberte tiskárnu --</option>
-                    @foreach (var printer in printerSettings)
-                    {
-                        <option value="@printer.Id">@printer.Name (@printer.IPAddress:@printer.Port)</option>
-                    }
-                </select>
-            </div>
-            <div class="col-md-6">
-                <label for="templateSelect" class="form-label">Šablona</label>
-                <select class="form-select" id="templateSelect" @bind="selectedTemplateId">
-                    <option value="0">-- Vyberte šablonu --</option>
-                    @foreach (var template in zebraTemplates)
-                    {
-                        <option value="@template.Id">@template.Name</option>
-                    }
-                </select>
-            </div>
-        </div>
-    </div>
 
-    <div class="mb-3 p-3 border rounded" style="background-color: #f8f9fa;">
-        <div class="row edge86-row">
-            <div class="col-md-3">
-                <label for="filterDateFrom" class="form-label">Datum od</label>
-                <input type="date" class="form-control" id="filterDateFrom" @bind="filterDateFrom" />
-            </div>
-            <div class="col-md-3">
-                <label for="filterDateTo" class="form-label">Datum do</label>
-                <input type="date" class="form-control" id="filterDateTo" @bind="filterDateTo" />
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">&nbsp;</label>
-                <div>
-                    <button class="btn btn-secondary" @onclick="ClearDateFilters">Vymazat filtry dat</button>
-                    <button class="btn btn-primary me-2" @onclick="ReloadData">Znovu načíst data</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="mb-3">
-        <div class="row edge86-row">
-            <div class="col-md-6">
-                <label for="filterMaterialNumber" class="form-label">Číslo materiálu</label>
-                <input type="text" class="form-control" id="filterMaterialNumber" @bind="filterMaterialNumber" @bind:event="oninput" @bind:after="UpdateFilteredData" placeholder="Filtrovat podle čísla materiálu" />
-            </div>
-            <div class="col-md-3">
-                <label for="filterMaterialBatch" class="form-label">Šarže materiálu</label>
-                <input type="text" class="form-control" id="filterMaterialBatch" @bind="filterMaterialBatch" @bind:event="oninput" @bind:after="UpdateFilteredData" placeholder="Filtrovat podle šarže materiálu" />
-            </div>
-            <div class="col-md-3">
-                <label for="filterStorage" class="form-label">Sklad</label>
-                <input type="text" class="form-control" id="filterStorage" @bind="filterStorage" @bind:event="oninput" @bind:after="UpdateFilteredData" placeholder="Filtrovat podle skladu" />
-            </div>
-        </div>
-    </div>
-
-    <div class="table-responsive">
-        <table class="table table-striped table-hover">
-            <thead>
-                <tr>
-                    <th style="cursor: pointer;" @onclick="@(() => SortBy("MaterialNumber"))">
-                        Číslo materiálu 
-                        @if (sortColumn == "MaterialNumber")
-                        {
-                            <span>@(sortAscending ? "▲" : "▼")</span>
-                        }
-                    </th>
-                    <th>Popis materiálu</th>
-                    <th style="cursor: pointer;" @onclick="@(() => SortBy("MaterialBatch"))">
-                        Šarže materiálu 
-                        @if (sortColumn == "MaterialBatch")
-                        {
-                            <span>@(sortAscending ? "▲" : "▼")</span>
-                        }
-                    </th>
-                    <th style="cursor: pointer;" @onclick="@(() => SortBy("Storage"))">
-                        Sklad 
-                        @if (sortColumn == "Storage")
-                        {
-                            <span>@(sortAscending ? "▲" : "▼")</span>
-                        }
-                    </th>
-                    <th style="cursor: pointer;" @onclick="@(() => SortBy("TimeStamp"))">
-                        Časové razítko 
-                        @if (sortColumn == "TimeStamp")
-                        {
-                            <span>@(sortAscending ? "▲" : "▼")</span>
-                        }
-                    </th>
-                    <th>Akce</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in FilteredData)
+<!-- Printer and Template Selection Section -->
+<div class="section-container">
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="printerSelect" class="form-label">Tiskárna</label>
+            <select class="form-control" id="printerSelect" value="@selectedPrinterId" @onchange="@(e => OnPrinterChanged(e))">
+                <option value="0">-- Vyberte tiskárnu --</option>
+                @foreach (var printer in printerSettings)
                 {
-                    <tr>
-                        <td>@item.MaterialNumber</td>
-                        <td>@item.MaterialDescription</td>
-                        <td>@item.MaterialBatch</td>
-                        <td>@item.Storage</td>
-                        <td>@(item.TimeStamp?.ToString("yyyy-MM-dd HH:mm:ss"))</td>
-                        <td>
-                            <button class="btn btn-primary btn-sm" @onclick="@(() => PrintItem(item))" disabled="@isPrinting">
-                                <span class="bi bi-printer" aria-hidden="true"></span> 
-                                @(isPrinting ? "Tiskne se..." : "Tisk")
-                            </button>
-                        </td>
-                    </tr>
+                    <option value="@printer.Id">@printer.Name (@printer.IPAddress:@printer.Port)</option>
                 }
-            </tbody>
-        </table>
+            </select>
+        </div>
+        <div class="form-group col-md-6">
+            <label for="templateSelect" class="form-label">Šablona</label>
+            <select class="form-control" id="templateSelect" value="@selectedTemplateId" @onchange="@(e => OnTemplateChanged(e))">
+                <option value="0">-- Vyberte šablonu --</option>
+                @foreach (var template in zebraTemplates)
+                {
+                    <option value="@template.Id">@template.Name</option>
+                }
+            </select>
+        </div>
     </div>
+</div>
 
-    @if (FilteredData.Count == 0)
-    {
-        <div class="alert alert-info" role="alert">
-            Nebyla nalezena žádná data odpovídající aktuálním filtrům.
+<!-- Date Filter Section -->
+<div class="section-container">
+    <div class="form-row">
+        <div class="form-group col-md-3">
+            <label for="filterDateFrom" class="form-label">Datum od</label>
+            <input type="date" class="form-control" id="filterDateFrom" value="@(filterDateFrom?.ToString("yyyy-MM-dd"))" @onchange="@(e => OnDateFromChanged(e))" />
         </div>
+        <div class="form-group col-md-3">
+            <label for="filterDateTo" class="form-label">Datum do</label>
+            <input type="date" class="form-control" id="filterDateTo" value="@(filterDateTo?.ToString("yyyy-MM-dd"))" @onchange="@(e => OnDateToChanged(e))" />
+        </div>
+        <div class="form-group col-md-6">
+            <label class="form-label">&nbsp;</label>
+            <div class="button-group">
+                <button class="btn btn-secondary" @onclick="ClearDateFilters">Vymazat filtry dat</button>
+                <button class="btn btn-primary button-spacing" @onclick="ReloadData">Znovu načíst data</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Text Filters Section -->
+<div class="section-container">
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="filterMaterialNumber" class="form-label">Číslo materiálu</label>
+            <input type="text" class="form-control" id="filterMaterialNumber" 
+                   value="@filterMaterialNumber" 
+                   @onchange="@(e => OnMaterialNumberFilterChanged(e))"
+                   placeholder="Filtrovat podle čísla materiálu" />
+        </div>
+        <div class="form-group col-md-3">
+            <label for="filterMaterialBatch" class="form-label">Šarže materiálu</label>
+            <input type="text" class="form-control" id="filterMaterialBatch" 
+                   value="@filterMaterialBatch" 
+                   @onchange="@(e => OnMaterialBatchFilterChanged(e))"
+                   placeholder="Filtrovat podle šarže materiálu" />
+        </div>
+        <div class="form-group col-md-3">
+            <label for="filterStorage" class="form-label">Sklad</label>
+            <input type="text" class="form-control" id="filterStorage" 
+                   value="@filterStorage" 
+                   @onchange="@(e => OnStorageFilterChanged(e))"
+                   placeholder="Filtrovat podle skladu" />
+        </div>
+    </div>
+</div>
+
+<!-- Data Table Section -->
+<div class="table-container">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th class="sortable-header" @onclick="@(() => SortBy("MaterialNumber"))">
+                    Číslo materiálu 
+                    @if (sortColumn == "MaterialNumber")
+                    {
+                        <span>@(sortAscending ? "▲" : "▼")</span>
+                    }
+                </th>
+                <th>Popis materiálu</th>
+                <th class="sortable-header" @onclick="@(() => SortBy("MaterialBatch"))">
+                    Šarže materiálu 
+                    @if (sortColumn == "MaterialBatch")
+                    {
+                        <span>@(sortAscending ? "▲" : "▼")</span>
+                    }
+                </th>
+                <th class="sortable-header" @onclick="@(() => SortBy("Storage"))">
+                    Sklad 
+                    @if (sortColumn == "Storage")
+                    {
+                        <span>@(sortAscending ? "▲" : "▼")</span>
+                    }
+                </th>
+                <th class="sortable-header" @onclick="@(() => SortBy("TimeStamp"))">
+                    Časové razítko 
+                    @if (sortColumn == "TimeStamp")
+                    {
+                        <span>@(sortAscending ? "▲" : "▼")</span>
+                    }
+                </th>
+                <th>Akce</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in FilteredData)
+            {
+                <tr>
+                    <td>@item.MaterialNumber</td>
+                    <td>@item.MaterialDescription</td>
+                    <td>@item.MaterialBatch</td>
+                    <td>@item.Storage</td>
+                    <td>@FormatDateTime(item.TimeStamp)</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" @onclick="@(() => PrintItem(item))" disabled="@isPrinting">
+                            <span class="bi bi-printer" aria-hidden="true"></span> 
+                            @(isPrinting ? "Tiskne se..." : "Tisk")
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (FilteredData.Count == 0)
+{
+    <div class="alert alert-info" role="alert">
+        Nebyla nalezena žádná data odpovídající aktuálním filtrům.
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(printMessage))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @printMessage
+        <button type="button" class="btn-close-custom" @onclick="@(() => { printMessage = string.Empty; StateHasChanged(); })">×</button>
+    </div>
+}
+
+<!-- Edge 86 Compatible CSS -->
+<style>
+    .section-container {
+        margin-bottom: 20px;
+        padding: 15px;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        background-color: #f8f9fa;
+    }
+    
+    .form-row {
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+        margin-right: -5px;
+        margin-left: -5px;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+        padding-right: 5px;
+        padding-left: 5px;
+    }
+    
+    .col-md-3 {
+        -webkit-box-flex: 0;
+        -ms-flex: 0 0 25%;
+        flex: 0 0 25%;
+        max-width: 25%;
+    }
+    
+    .col-md-6 {
+        -webkit-box-flex: 0;
+        -ms-flex: 0 0 50%;
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+    
+    .button-group {
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        align-items: center;
+    }
+    
+    .button-spacing {
+        margin-left: 10px;
+    }
+    
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .sortable-header {
+        cursor: pointer;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+    
+    .sortable-header:hover {
+        background-color: #f5f5f5;
+    }
+    
+    .btn-close-custom {
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 0.75rem 1.25rem;
+        color: inherit;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    
+    .alert {
+        position: relative;
+        padding: 0.75rem 1.25rem;
+        margin-bottom: 1rem;
+        border: 1px solid transparent;
+        border-radius: 0.25rem;
+    }
+    
+    .alert-success {
+        color: #155724;
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+    }
+    
+    .alert-info {
+        color: #0c5460;
+        background-color: #d1ecf1;
+        border-color: #bee5eb;
+    }
+    
+    .alert-danger {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
     }
 
-    @if (!string.IsNullOrEmpty(printMessage))
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @printMessage
-            <button type="button" class="btn-close" @onclick="@(() => printMessage = string.Empty)"></button>
-        </div>
-    }
-@* } *@
+</style>
 
 @code {
     private List<MaterialStockStageDto> materialStockStages = new();
@@ -206,6 +326,74 @@ else if (!string.IsNullOrEmpty(errorMessage))
         }
     }
 
+    // Edge 86 compatible event handlers
+    private void OnPrinterChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int printerId))
+        {
+            selectedPrinterId = printerId;
+        }
+        StateHasChanged();
+    }
+
+    private void OnTemplateChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int templateId))
+        {
+            selectedTemplateId = templateId;
+        }
+        StateHasChanged();
+    }
+
+    private void OnDateFromChanged(ChangeEventArgs e)
+    {
+        var dateValue = e.Value?.ToString();
+        if (DateTime.TryParse(dateValue, out DateTime parsedDate))
+        {
+            filterDateFrom = parsedDate;
+        }
+        else
+        {
+            filterDateFrom = null;
+        }
+        StateHasChanged();
+    }
+
+    private void OnDateToChanged(ChangeEventArgs e)
+    {
+        var dateValue = e.Value?.ToString();
+        if (DateTime.TryParse(dateValue, out DateTime parsedDate))
+        {
+            filterDateTo = parsedDate;
+        }
+        else
+        {
+            filterDateTo = null;
+        }
+        StateHasChanged();
+    }
+
+    private void OnMaterialNumberFilterChanged(ChangeEventArgs e)
+    {
+        filterMaterialNumber = e.Value?.ToString() ?? string.Empty;
+        UpdateFilteredData();
+        StateHasChanged();
+    }
+
+    private void OnMaterialBatchFilterChanged(ChangeEventArgs e)
+    {
+        filterMaterialBatch = e.Value?.ToString() ?? string.Empty;
+        UpdateFilteredData();
+        StateHasChanged();
+    }
+
+    private void OnStorageFilterChanged(ChangeEventArgs e)
+    {
+        filterStorage = e.Value?.ToString() ?? string.Empty;
+        UpdateFilteredData();
+        StateHasChanged();
+    }
+
     private async Task ReloadData()
     {
         try
@@ -242,50 +430,78 @@ else if (!string.IsNullOrEmpty(errorMessage))
     {
         var filtered = materialStockStages.AsEnumerable();
 
-        // Apply filters
-        if (!string.IsNullOrWhiteSpace(filterMaterialNumber))
+        // Apply filters using traditional loops instead of LINQ for better compatibility
+        var tempList = new List<MaterialStockStageDto>();
+        
+        foreach (var item in materialStockStages)
         {
-            filtered = filtered.Where(x => 
-                x.MaterialNumber.HasValue && 
-                x.MaterialNumber.Value.ToString().Contains(filterMaterialNumber));
+            bool includeItem = true;
+
+            // Material number filter
+            if (!string.IsNullOrWhiteSpace(filterMaterialNumber))
+            {
+                if (!item.MaterialNumber.HasValue || 
+                    !item.MaterialNumber.Value.ToString().Contains(filterMaterialNumber))
+                {
+                    includeItem = false;
+                }
+            }
+
+            // Material batch filter
+            if (includeItem && !string.IsNullOrWhiteSpace(filterMaterialBatch))
+            {
+                if (string.IsNullOrEmpty(item.MaterialBatch) || 
+                    item.MaterialBatch.IndexOf(filterMaterialBatch, StringComparison.OrdinalIgnoreCase) < 0)
+                {
+                    includeItem = false;
+                }
+            }
+
+            // Storage filter
+            if (includeItem && !string.IsNullOrWhiteSpace(filterStorage))
+            {
+                if (string.IsNullOrEmpty(item.Storage) || 
+                    item.Storage.IndexOf(filterStorage, StringComparison.OrdinalIgnoreCase) < 0)
+                {
+                    includeItem = false;
+                }
+            }
+
+            if (includeItem)
+            {
+                tempList.Add(item);
+            }
         }
 
-        if (!string.IsNullOrWhiteSpace(filterMaterialBatch))
-        {
-            filtered = filtered.Where(x => 
-                !string.IsNullOrEmpty(x.MaterialBatch) && 
-                x.MaterialBatch.Contains(filterMaterialBatch, StringComparison.OrdinalIgnoreCase));
-        }
-
-        if (!string.IsNullOrWhiteSpace(filterStorage))
-        {
-            filtered = filtered.Where(x => 
-                !string.IsNullOrEmpty(x.Storage) && 
-                x.Storage.Contains(filterStorage, StringComparison.OrdinalIgnoreCase));
-        }
-
-        // Apply sorting
+        // Apply sorting manually for Edge 86 compatibility
         if (!string.IsNullOrEmpty(sortColumn))
         {
-            filtered = sortColumn switch
+            switch (sortColumn)
             {
-                "MaterialNumber" => sortAscending 
-                    ? filtered.OrderBy(x => x.MaterialNumber) 
-                    : filtered.OrderByDescending(x => x.MaterialNumber),
-                "MaterialBatch" => sortAscending 
-                    ? filtered.OrderBy(x => x.MaterialBatch) 
-                    : filtered.OrderByDescending(x => x.MaterialBatch),
-                "Storage" => sortAscending 
-                    ? filtered.OrderBy(x => x.Storage) 
-                    : filtered.OrderByDescending(x => x.Storage),
-                "TimeStamp" => sortAscending 
-                    ? filtered.OrderBy(x => x.TimeStamp) 
-                    : filtered.OrderByDescending(x => x.TimeStamp),
-                _ => filtered
-            };
+                case "MaterialNumber":
+                    tempList.Sort((x, y) => sortAscending 
+                        ? Comparer<int?>.Default.Compare(x.MaterialNumber, y.MaterialNumber)
+                        : Comparer<int?>.Default.Compare(y.MaterialNumber, x.MaterialNumber));
+                    break;
+                case "MaterialBatch":
+                    tempList.Sort((x, y) => sortAscending 
+                        ? string.Compare(x.MaterialBatch, y.MaterialBatch, StringComparison.OrdinalIgnoreCase)
+                        : string.Compare(y.MaterialBatch, x.MaterialBatch, StringComparison.OrdinalIgnoreCase));
+                    break;
+                case "Storage":
+                    tempList.Sort((x, y) => sortAscending 
+                        ? string.Compare(x.Storage, y.Storage, StringComparison.OrdinalIgnoreCase)
+                        : string.Compare(y.Storage, x.Storage, StringComparison.OrdinalIgnoreCase));
+                    break;
+                case "TimeStamp":
+                    tempList.Sort((x, y) => sortAscending 
+                        ? DateTime.Compare(x.TimeStamp ?? DateTime.MinValue, y.TimeStamp ?? DateTime.MinValue)
+                        : DateTime.Compare(y.TimeStamp ?? DateTime.MinValue, x.TimeStamp ?? DateTime.MinValue));
+                    break;
+            }
         }
 
-        cachedFilteredData = filtered.ToList();
+        cachedFilteredData = tempList;
     }
 
     private void SortBy(string columnName)
@@ -300,6 +516,43 @@ else if (!string.IsNullOrEmpty(errorMessage))
             sortAscending = true;
         }
         UpdateFilteredData();
+        StateHasChanged();
+    }
+
+    // Edge 86 compatible date formatting
+    private string FormatDateTime(DateTime? dateTime)
+    {
+        if (dateTime.HasValue)
+        {
+            return dateTime.Value.ToString("yyyy-MM-dd HH:mm:ss");
+        }
+        return string.Empty;
+    }
+
+    // Edge 86 compatible printer finding
+    private PrinterSettingDto? FindPrinterById(int id)
+    {
+        foreach (var printer in printerSettings)
+        {
+            if (printer.Id == id)
+            {
+                return printer;
+            }
+        }
+        return null;
+    }
+
+    // Edge 86 compatible template finding
+    private ZebraTemplateDto? FindTemplateById(int id)
+    {
+        foreach (var template in zebraTemplates)
+        {
+            if (template.Id == id)
+            {
+                return template;
+            }
+        }
+        return null;
     }
 
     private async Task PrintItem(MaterialStockStageDto item)
@@ -312,32 +565,38 @@ else if (!string.IsNullOrEmpty(errorMessage))
             // Validate selections
             if (selectedPrinterId == 0)
             {
-                errorMessage = "Please select a printer.";
+                errorMessage = "Prosím vyberte tiskárnu.";
                 return;
             }
 
             if (selectedTemplateId == 0)
             {
-                errorMessage = "Please select a template.";
+                errorMessage = "Prosím vyberte šablonu.";
                 return;
             }
 
-            var printer = printerSettings.FirstOrDefault(p => p.Id == selectedPrinterId);
-            var template = zebraTemplates.FirstOrDefault(t => t.Id == selectedTemplateId);
+            var printer = FindPrinterById(selectedPrinterId);
+            var template = FindTemplateById(selectedTemplateId);
 
             if (printer == null)
             {
-                errorMessage = "Selected printer not found.";
+                errorMessage = "Vybraná tiskárna nebyla nalezena.";
                 return;
             }
 
             if (template == null)
             {
-                errorMessage = "Selected template not found.";
+                errorMessage = "Vybraná šablona nebyla nalezena.";
                 return;
             }
 
-            var confirmed = await JS.InvokeAsync<bool>("confirmDialog.show", $"Print label for {item.MaterialDescription}, {item.MaterialNumber}-{item.Storage} ?");
+            // Use standard JavaScript confirm instead of custom dialog for Edge 86 compatibility
+            var confirmMessage = string.Format("Tisknout štítek pro {0}, {1}-{2}?", 
+                item.MaterialDescription ?? "N/A", 
+                item.MaterialNumber?.ToString() ?? "N/A", 
+                item.Storage ?? "N/A");
+                
+            var confirmed = await JS.InvokeAsync<bool>("confirm", confirmMessage);
             if (!confirmed)
             {
                 return;
@@ -348,11 +607,13 @@ else if (!string.IsNullOrEmpty(errorMessage))
 
             await MaterialStockStageService.PrintZplAsync(item, printer, template);
             
-            printMessage = $"Successfully printed label for Material Number: {item.MaterialNumber}, Batch: {item.MaterialBatch}";
+            printMessage = string.Format("Úspěšně vytištěn štítek pro číslo materiálu: {0}, šarži: {1}", 
+                item.MaterialNumber?.ToString() ?? "N/A", 
+                item.MaterialBatch ?? "N/A");
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error printing label: {ex.Message}";
+            errorMessage = string.Format("Chyba při tisku štítku: {0}", ex.Message);
         }
         finally
         {

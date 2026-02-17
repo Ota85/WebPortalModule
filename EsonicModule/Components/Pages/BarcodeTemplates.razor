@@ -31,13 +31,14 @@ else
         </div>
     }
 
-    <div class="mb-3">
+    <div class="action-section">
         <button class="btn btn-success" @onclick="AddNewRow">
             <span class="bi bi-plus-circle" aria-hidden="true"></span> Přidat novou šablonu
         </button>
     </div>
 
-    <div class="table-responsive">
+    <!-- Table Container with Edge 86 compatible scrolling -->
+    <div class="table-container">
         <table class="table table-striped table-hover">
             <thead>
                 <tr>
@@ -48,8 +49,12 @@ else
                 </tr>
             </thead>
             <tbody>
-                @foreach (var (template, index) in editableTemplates.Select((t, i) => (t, i)))
+                @{
+                    int index = 0;
+                }
+                @foreach (var template in editableTemplates)
                 {
+                    var currentIndex = index;
                     <tr class="@GetRowClass(template)">
                         <td>
                             <input type="text" class="form-control" @bind="template.Name" @bind:event="oninput" @bind:after="() => MarkAsModified(template)" />
